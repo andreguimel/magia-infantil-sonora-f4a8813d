@@ -45,7 +45,7 @@ serve(async (req) => {
   }
 
   try {
-    const { taskId, plan, origin, customerName, customerEmail: reqEmail, customerCpf, discountPercent } = await req.json();
+    const { taskId, plan, origin, customerName, customerEmail: reqEmail, customerCpf, discountPercent, refCode } = await req.json();
 
     const ABACATEPAY_API_KEY = Deno.env.get("ABACATEPAY_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -83,9 +83,12 @@ serve(async (req) => {
 
     const customerEmail = reqEmail || task.user_email || `customer-${taskId.substring(0, 8)}@musicamagica.com`;
 
-    // Update task with customer email if provided
-    if (reqEmail && reqEmail !== task.user_email) {
-      await supabase.from("music_tasks").update({ user_email: reqEmail }).eq("id", taskId);
+    // Update task with customer email and ref_code if provided
+    const updateFields: Record<string, string> = {};
+    if (reqEmail && reqEmail !== task.user_email) updateFields.user_email = reqEmail;
+    if (refCode) updateFields.ref_code = refCode;
+    if (Object.keys(updateFields).length > 0) {
+      await supabase.from("music_tasks").update(updateFields).eq("id", taskId);
     }
 
     // Create PIX QR Code directly (real PIX, not a billing link)

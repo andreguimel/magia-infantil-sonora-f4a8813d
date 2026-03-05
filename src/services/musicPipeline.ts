@@ -74,6 +74,7 @@ export async function createBilling(
   customerData?: { name: string; email: string; cpf: string },
   discountPercent?: number
 ): Promise<{ billingId: string; brCode: string; brCodeBase64: string }> {
+  const refCode = localStorage.getItem("ref_code") || undefined;
   const response = await fetch(`${SUPABASE_URL}/functions/v1/create-billing`, {
     method: "POST",
     headers,
@@ -85,6 +86,7 @@ export async function createBilling(
       customerEmail: customerData?.email,
       customerCpf: customerData?.cpf,
       discountPercent,
+      refCode,
     }),
   });
 
