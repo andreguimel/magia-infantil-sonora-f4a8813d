@@ -86,18 +86,24 @@ export type Database = {
       tracking_links: {
         Row: {
           code: string
+          commission_paid: number
+          commission_percent: number
           created_at: string
           id: string
           label: string
         }
         Insert: {
           code: string
+          commission_paid?: number
+          commission_percent?: number
           created_at?: string
           id?: string
           label: string
         }
         Update: {
           code?: string
+          commission_paid?: number
+          commission_percent?: number
           created_at?: string
           id?: string
           label?: string

@@ -55,6 +55,8 @@ interface TrackingLink {
   code: string;
   label: string;
   created_at: string;
+  commission_percent: number;
+  commission_paid: number;
 }
 
 interface RefMetrics {
@@ -262,6 +264,40 @@ export default function AdminDashboard() {
     const url = `${window.location.origin}/?ref=${code}`;
     navigator.clipboard.writeText(url);
     toast({ title: "Link copiado!", description: url });
+  };
+
+  const handlePayCommission = async (link: TrackingLink) => {
+    const m = refMetrics[link.code] || { total: 0, paid: 0, revenue: 0 };
+    const commissionDue = m.revenue * (link.commission_percent / 100);
+    const balance = commissionDue - link.commission_paid;
+    if (balance <= 0) {
+      toast({ title: "Sem saldo pendente", description: "Toda a comissão já foi paga." });
+      return;
+    }
+    const valueStr = prompt(`Quanto foi pago agora? (Saldo pendente: R$ ${balance.toFixed(2)})`, balance.toFixed(2));
+    if (!valueStr) return;
+    const value = parseFloat(valueStr.replace(",", "."));
+    if (isNaN(value) || value <= 0) {
+      toast({ title: "Valor inválido", variant: "destructive" });
+      return;
+    }
+    const newTotal = link.commission_paid + value;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-dashboard`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: "update_commission_paid", linkId: link.id, commission_paid: newTotal }),
+      });
+      if (!res.ok) throw new Error();
+      toast({ title: "Pagamento registrado!", description: `R$ ${value.toFixed(2)} registrado para ${link.label}` });
+      fetchData();
+    } catch {
+      toast({ title: "Erro", description: "Falha ao registrar pagamento", variant: "destructive" });
+    }
   };
 
   return (
@@ -526,15 +562,21 @@ export default function AdminDashboard() {
                     <TableHead>Checkouts</TableHead>
                     <TableHead>Pagos</TableHead>
                     <TableHead>Conversão</TableHead>
-                    <TableHead>Receita Est.</TableHead>
+                    <TableHead>Receita</TableHead>
+                    <TableHead>Comissão (%)</TableHead>
+                    <TableHead>Comissão Devida</TableHead>
+                    <TableHead>Comissão Paga</TableHead>
+                    <TableHead>Saldo a Pagar</TableHead>
                     <TableHead>Criado em</TableHead>
-                    <TableHead className="w-20">Ações</TableHead>
+                    <TableHead className="w-28">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {trackingLinks.map((link) => {
                     const m = refMetrics[link.code] || { total: 0, paid: 0, revenue: 0 };
                     const conv = m.total > 0 ? Math.round((m.paid / m.total) * 100) : 0;
+                    const commissionDue = m.revenue * (link.commission_percent / 100);
+                    const balance = commissionDue - link.commission_paid;
                     return (
                       <TableRow key={link.id}>
                         <TableCell>
@@ -545,6 +587,12 @@ export default function AdminDashboard() {
                         <TableCell className="text-green-600 font-semibold">{m.paid}</TableCell>
                         <TableCell>{conv}%</TableCell>
                         <TableCell>R$ {m.revenue.toFixed(2)}</TableCell>
+                        <TableCell>{link.commission_percent}%</TableCell>
+                        <TableCell className="font-semibold">R$ {commissionDue.toFixed(2)}</TableCell>
+                        <TableCell className="text-green-600">R$ {link.commission_paid.toFixed(2)}</TableCell>
+                        <TableCell className={`font-bold ${balance > 0 ? "text-orange-600" : "text-green-600"}`}>
+                          R$ {balance.toFixed(2)}
+                        </TableCell>
                         <TableCell className="text-muted-foreground text-xs">
                           {new Date(link.created_at).toLocaleDateString("pt-BR")}
                         </TableCell>
@@ -552,6 +600,9 @@ export default function AdminDashboard() {
                           <div className="flex gap-1">
                             <Button variant="ghost" size="sm" onClick={() => copyLinkUrl(link.code)} title="Copiar URL">
                               <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handlePayCommission(link)} title="Registrar pagamento">
+                              <DollarSign className="h-4 w-4 text-green-600" />
                             </Button>
                             <Button variant="ghost" size="sm" onClick={() => handleDeleteLink(link.id)} title="Excluir">
                               <Trash2 className="h-4 w-4 text-destructive" />
@@ -563,7 +614,7 @@ export default function AdminDashboard() {
                   })}
                   {trackingLinks.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                         Nenhum link criado ainda
                       </TableCell>
                     </TableRow>

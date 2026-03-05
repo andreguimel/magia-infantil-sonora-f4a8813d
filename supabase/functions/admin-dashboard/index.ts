@@ -87,9 +87,29 @@ serve(async (req) => {
       });
     }
 
-    // Handle POST — create tracking link
+    // Handle POST
     if (req.method === 'POST') {
-      const { action, code, label } = await req.json();
+      const body = await req.json();
+      const { action, code, label } = body;
+
+      // Update commission_paid
+      if (action === 'update_commission_paid') {
+        const { linkId, commission_paid } = body;
+        if (!linkId || commission_paid == null) {
+          return new Response(JSON.stringify({ error: 'linkId and commission_paid required' }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const { error: updErr } = await supabase
+          .from('tracking_links')
+          .update({ commission_paid: Number(commission_paid) })
+          .eq('id', linkId);
+        if (updErr) throw updErr;
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       if (action === 'create_tracking_link') {
         if (!code || !label) {
           return new Response(JSON.stringify({ error: 'code and label required' }), {
@@ -143,7 +163,7 @@ serve(async (req) => {
     // Fetch tracking links
     const { data: trackingLinks } = await supabase
       .from('tracking_links')
-      .select('*')
+      .select('id, code, label, created_at, commission_percent, commission_paid')
       .order('created_at', { ascending: false });
 
     // Compute ref metrics
