@@ -30,6 +30,7 @@ export type Database = {
           music_style: string | null
           payment_status: string | null
           payment_url: string | null
+          ref_code: string | null
           status: string
           task_id: string | null
           theme: string
@@ -51,6 +52,7 @@ export type Database = {
           music_style?: string | null
           payment_status?: string | null
           payment_url?: string | null
+          ref_code?: string | null
           status?: string
           task_id?: string | null
           theme: string
@@ -72,11 +74,33 @@ export type Database = {
           music_style?: string | null
           payment_status?: string | null
           payment_url?: string | null
+          ref_code?: string | null
           status?: string
           task_id?: string | null
           theme?: string
           user_email?: string | null
           video_images?: Json | null
+        }
+        Relationships: []
+      }
+      tracking_links: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          label: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          label: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          label?: string
         }
         Relationships: []
       }
