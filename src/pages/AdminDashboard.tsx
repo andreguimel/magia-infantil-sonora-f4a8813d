@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { RefreshCw, LogOut, ShoppingCart, CheckCircle, XCircle, TrendingUp, DollarSign, Search, FileDown, Play, Trash2 } from "lucide-react";
+import { RefreshCw, LogOut, ShoppingCart, CheckCircle, XCircle, TrendingUp, DollarSign, Search, FileDown, Play, Trash2, Link, Plus, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import OrderDetailModal from "@/components/admin/OrderDetailModal";
 
@@ -46,6 +47,18 @@ interface Order {
   download_url: string | null;
   access_code: string | null;
   download_expires_at: string | null;
+  ref_code: string | null;
+}
+
+interface TrackingLink {
+  id: string;
+  code: string;
+  label: string;
+  created_at: string;
+}
+
+interface RefMetrics {
+  [code: string]: { total: number; paid: number; revenue: number };
 }
 
 const FUNNEL_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(142 76% 36%)", "hsl(262 83% 58%)"];
@@ -61,16 +74,12 @@ function statusBadge(status: string | null) {
 }
 
 function exportCSV(orders: Order[]) {
-  const headers = ["Nome", "Tema", "Estilo", "Email", "Pagamento", "Status", "Data", "Código Acesso"];
+  const headers = ["Nome", "Tema", "Estilo", "Email", "Pagamento", "Status", "Data", "Código Acesso", "Ref"];
   const rows = orders.map(o => [
-    o.child_name,
-    o.theme,
-    o.music_style || "",
-    o.user_email || "",
-    o.payment_status || "",
-    o.status,
+    o.child_name, o.theme, o.music_style || "", o.user_email || "",
+    o.payment_status || "", o.status,
     new Date(o.created_at).toLocaleDateString("pt-BR"),
-    o.access_code || "",
+    o.access_code || "", o.ref_code || "",
   ]);
   const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -86,6 +95,8 @@ export default function AdminDashboard() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [funnel, setFunnel] = useState<FunnelItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [trackingLinks, setTrackingLinks] = useState<TrackingLink[]>([]);
+  const [refMetrics, setRefMetrics] = useState<RefMetrics>({});
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -93,6 +104,9 @@ export default function AdminDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [newLinkCode, setNewLinkCode] = useState("");
+  const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [creatingLink, setCreatingLink] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -118,6 +132,8 @@ export default function AdminDashboard() {
       setMetrics(data.metrics);
       setFunnel(data.funnel);
       setOrders(data.orders);
+      setTrackingLinks(data.trackingLinks || []);
+      setRefMetrics(data.refMetrics || {});
     } catch {
       toast({ title: "Erro", description: "Falha ao carregar dados", variant: "destructive" });
     } finally {
@@ -144,7 +160,7 @@ export default function AdminDashboard() {
     .filter(o => {
       if (!search) return true;
       const q = search.toLowerCase();
-      return o.child_name.toLowerCase().includes(q) || (o.user_email?.toLowerCase().includes(q) ?? false);
+      return o.child_name.toLowerCase().includes(q) || (o.user_email?.toLowerCase().includes(q) ?? false) || (o.ref_code?.toLowerCase().includes(q) ?? false);
     });
 
   const handleLogout = () => {
@@ -191,6 +207,61 @@ export default function AdminDashboard() {
     } finally {
       setDeleting(false);
     }
+  };
+
+  const handleCreateLink = async () => {
+    if (!newLinkCode.trim() || !newLinkLabel.trim() || !token) return;
+    setCreatingLink(true);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-dashboard`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: "create_tracking_link", code: newLinkCode.trim(), label: newLinkLabel.trim() }),
+      });
+      if (res.status === 409) {
+        toast({ title: "Erro", description: "Código já existe", variant: "destructive" });
+        return;
+      }
+      if (!res.ok) throw new Error();
+      toast({ title: "Link criado!" });
+      setNewLinkCode("");
+      setNewLinkLabel("");
+      fetchData();
+    } catch {
+      toast({ title: "Erro", description: "Falha ao criar link", variant: "destructive" });
+    } finally {
+      setCreatingLink(false);
+    }
+  };
+
+  const handleDeleteLink = async (linkId: string) => {
+    if (!token || !confirm("Excluir este link de rastreamento?")) return;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-dashboard`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ trackingLinkId: linkId }),
+      });
+      if (!res.ok) throw new Error();
+      toast({ title: "Link removido" });
+      fetchData();
+    } catch {
+      toast({ title: "Erro", description: "Falha ao excluir link", variant: "destructive" });
+    }
+  };
+
+  const copyLinkUrl = (code: string) => {
+    const url = `${window.location.origin}/?ref=${code}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: "Link copiado!", description: url });
   };
 
   return (
@@ -255,135 +326,254 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Funnel Chart */}
-      {funnel.length > 0 && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-lg">Funil de Vendas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={funnel} layout="vertical" margin={{ left: 120 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="stage" width={110} tick={{ fontSize: 13 }} />
-                  <Tooltip formatter={(v: number) => [v, "Pedidos"]} />
-                  <Bar dataKey="count" radius={[0, 6, 6, 0]}>
-                    {funnel.map((_, i) => (
-                      <Cell key={i} fill={FUNNEL_COLORS[i % FUNNEL_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <Tabs defaultValue="orders" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="orders">Pedidos</TabsTrigger>
+          <TabsTrigger value="funnel">Funil</TabsTrigger>
+          <TabsTrigger value="tracking">
+            <Link className="h-4 w-4 mr-1" /> Links de Rastreamento
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Filters + Table */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-3">
-            <CardTitle className="text-lg">Pedidos</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              {filteredOrders.length} resultado{filteredOrders.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar nome ou email..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 w-[200px]"
-              />
-            </div>
-            <Select value={period} onValueChange={handlePeriodChange}>
-              <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="7d">Últimos 7 dias</SelectItem>
-                <SelectItem value="30d">Últimos 30 dias</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos status</SelectItem>
-                <SelectItem value="paid">Pagos</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="abandoned">Abandonados</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm" onClick={() => exportCSV(filteredOrders)} disabled={filteredOrders.length === 0}>
-              <FileDown className="h-4 w-4 mr-1" /> CSV
-            </Button>
-            {selectedIds.size > 0 && (
-              <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
-                <Trash2 className="h-4 w-4 mr-1" /> Excluir ({selectedIds.size})
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">
-                  <Checkbox
-                    checked={filteredOrders.length > 0 && selectedIds.size === filteredOrders.length}
-                    onCheckedChange={toggleSelectAll}
+        {/* Funnel Tab */}
+        <TabsContent value="funnel">
+          {funnel.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Funil de Vendas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={funnel} layout="vertical" margin={{ left: 120 }}>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                      <XAxis type="number" />
+                      <YAxis type="category" dataKey="stage" width={110} tick={{ fontSize: 13 }} />
+                      <Tooltip formatter={(v: number) => [v, "Pedidos"]} />
+                      <Bar dataKey="count" radius={[0, 6, 6, 0]}>
+                        {funnel.map((_, i) => (
+                          <Cell key={i} fill={FUNNEL_COLORS[i % FUNNEL_COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Orders Tab */}
+        <TabsContent value="orders">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-lg">Pedidos</CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  {filteredOrders.length} resultado{filteredOrders.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar nome, email ou ref..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 w-[220px]"
                   />
-                </TableHead>
-                <TableHead>Criança</TableHead>
-                <TableHead>Tema</TableHead>
-                <TableHead className="hidden md:table-cell">Estilo</TableHead>
-                <TableHead className="hidden md:table-cell">Email</TableHead>
-                <TableHead>Pagamento</TableHead>
-                <TableHead className="hidden md:table-cell">Música</TableHead>
-                <TableHead>Data</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.map((o) => (
-                <TableRow key={o.id} className="cursor-pointer">
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={selectedIds.has(o.id)}
-                      onCheckedChange={() => toggleSelect(o.id)}
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium" onClick={() => setSelectedOrder(o)}>
-                    <span className="flex items-center gap-1.5">
-                      {o.audio_url && <Play className="h-3.5 w-3.5 text-green-500 shrink-0" />}
-                      {o.child_name}
-                    </span>
-                  </TableCell>
-                  <TableCell onClick={() => setSelectedOrder(o)}>{o.theme}</TableCell>
-                  <TableCell className="hidden md:table-cell text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>{o.music_style || "—"}</TableCell>
-                  <TableCell className="hidden md:table-cell text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>{o.user_email || "—"}</TableCell>
-                  <TableCell onClick={() => setSelectedOrder(o)}>{statusBadge(o.payment_status)}</TableCell>
-                  <TableCell className="hidden md:table-cell" onClick={() => setSelectedOrder(o)}>
-                    <Badge variant="secondary" className="text-xs">{o.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>
-                    {new Date(o.created_at).toLocaleDateString("pt-BR")}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filteredOrders.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Nenhum pedido encontrado
-                  </TableCell>
-                </TableRow>
+                </div>
+                <Select value={period} onValueChange={handlePeriodChange}>
+                  <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                    <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos status</SelectItem>
+                    <SelectItem value="paid">Pagos</SelectItem>
+                    <SelectItem value="pending">Pendentes</SelectItem>
+                    <SelectItem value="abandoned">Abandonados</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="sm" onClick={() => exportCSV(filteredOrders)} disabled={filteredOrders.length === 0}>
+                  <FileDown className="h-4 w-4 mr-1" /> CSV
+                </Button>
+                {selectedIds.size > 0 && (
+                  <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+                    <Trash2 className="h-4 w-4 mr-1" /> Excluir ({selectedIds.size})
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={filteredOrders.length > 0 && selectedIds.size === filteredOrders.length}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
+                    <TableHead>Criança</TableHead>
+                    <TableHead>Tema</TableHead>
+                    <TableHead className="hidden md:table-cell">Estilo</TableHead>
+                    <TableHead className="hidden md:table-cell">Email</TableHead>
+                    <TableHead>Pagamento</TableHead>
+                    <TableHead className="hidden md:table-cell">Música</TableHead>
+                    <TableHead className="hidden md:table-cell">Ref</TableHead>
+                    <TableHead>Data</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredOrders.map((o) => (
+                    <TableRow key={o.id} className="cursor-pointer">
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedIds.has(o.id)}
+                          onCheckedChange={() => toggleSelect(o.id)}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium" onClick={() => setSelectedOrder(o)}>
+                        <span className="flex items-center gap-1.5">
+                          {o.audio_url && <Play className="h-3.5 w-3.5 text-green-500 shrink-0" />}
+                          {o.child_name}
+                        </span>
+                      </TableCell>
+                      <TableCell onClick={() => setSelectedOrder(o)}>{o.theme}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>{o.music_style || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>{o.user_email || "—"}</TableCell>
+                      <TableCell onClick={() => setSelectedOrder(o)}>{statusBadge(o.payment_status)}</TableCell>
+                      <TableCell className="hidden md:table-cell" onClick={() => setSelectedOrder(o)}>
+                        <Badge variant="secondary" className="text-xs">{o.status}</Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>
+                        {o.ref_code ? <Badge variant="outline" className="text-xs">{o.ref_code}</Badge> : "—"}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs" onClick={() => setSelectedOrder(o)}>
+                        {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredOrders.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                        Nenhum pedido encontrado
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tracking Links Tab */}
+        <TabsContent value="tracking">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Plus className="h-5 w-5" /> Criar Novo Link
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3 flex-wrap items-end">
+                <div className="space-y-1">
+                  <label className="text-sm text-muted-foreground">Código (usado na URL)</label>
+                  <Input
+                    placeholder="ex: joao"
+                    value={newLinkCode}
+                    onChange={(e) => setNewLinkCode(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))}
+                    className="w-[160px]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm text-muted-foreground">Nome / Label</label>
+                  <Input
+                    placeholder="ex: João Influencer"
+                    value={newLinkLabel}
+                    onChange={(e) => setNewLinkLabel(e.target.value)}
+                    className="w-[220px]"
+                  />
+                </div>
+                <Button onClick={handleCreateLink} disabled={creatingLink || !newLinkCode.trim() || !newLinkLabel.trim()}>
+                  <Plus className="h-4 w-4 mr-1" /> Criar
+                </Button>
+              </div>
+              {newLinkCode.trim() && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  URL: <code className="bg-muted px-1 py-0.5 rounded">{window.location.origin}/?ref={newLinkCode.trim().toLowerCase()}</code>
+                </p>
               )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Links Ativos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Código</TableHead>
+                    <TableHead>Label</TableHead>
+                    <TableHead>Checkouts</TableHead>
+                    <TableHead>Pagos</TableHead>
+                    <TableHead>Conversão</TableHead>
+                    <TableHead>Receita Est.</TableHead>
+                    <TableHead>Criado em</TableHead>
+                    <TableHead className="w-20">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {trackingLinks.map((link) => {
+                    const m = refMetrics[link.code] || { total: 0, paid: 0, revenue: 0 };
+                    const conv = m.total > 0 ? Math.round((m.paid / m.total) * 100) : 0;
+                    return (
+                      <TableRow key={link.id}>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono">{link.code}</Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">{link.label}</TableCell>
+                        <TableCell>{m.total}</TableCell>
+                        <TableCell className="text-green-600 font-semibold">{m.paid}</TableCell>
+                        <TableCell>{conv}%</TableCell>
+                        <TableCell>R$ {m.revenue.toFixed(2)}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">
+                          {new Date(link.created_at).toLocaleDateString("pt-BR")}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => copyLinkUrl(link.code)} title="Copiar URL">
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteLink(link.id)} title="Excluir">
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {trackingLinks.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                        Nenhum link criado ainda
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <OrderDetailModal order={selectedOrder} open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)} />
     </div>
