@@ -62,7 +62,19 @@ serve(async (req) => {
 
     // Handle DELETE
     if (req.method === 'DELETE') {
-      const { ids } = await req.json();
+      const body = await req.json();
+      
+      // Delete tracking link
+      if (body.trackingLinkId) {
+        const { error: delError } = await supabase.from('tracking_links').delete().eq('id', body.trackingLinkId);
+        if (delError) throw delError;
+        return new Response(JSON.stringify({ deleted: 1 }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      // Delete orders
+      const { ids } = body;
       if (!Array.isArray(ids) || ids.length === 0) {
         return new Response(JSON.stringify({ error: 'ids array required' }), {
           status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -75,13 +87,44 @@ serve(async (req) => {
       });
     }
 
+    // Handle POST — create tracking link
+    if (req.method === 'POST') {
+      const { action, code, label } = await req.json();
+      if (action === 'create_tracking_link') {
+        if (!code || !label) {
+          return new Response(JSON.stringify({ error: 'code and label required' }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const { data, error: insertError } = await supabase
+          .from('tracking_links')
+          .insert({ code: code.toLowerCase().trim(), label: label.trim() })
+          .select()
+          .single();
+        if (insertError) {
+          if (insertError.code === '23505') {
+            return new Response(JSON.stringify({ error: 'Código já existe' }), {
+              status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          throw insertError;
+        }
+        return new Response(JSON.stringify({ link: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ error: 'Unknown action' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Parse query params
     const url = new URL(req.url);
     const period = url.searchParams.get('period') || 'all';
 
     let query = supabase
       .from('music_tasks')
-      .select('id, child_name, theme, user_email, payment_status, status, created_at, billing_id, music_style, age_group, lyrics, audio_url, download_url, access_code, download_expires_at')
+      .select('id, child_name, theme, user_email, payment_status, status, created_at, billing_id, music_style, age_group, lyrics, audio_url, download_url, access_code, download_expires_at, ref_code')
       .order('created_at', { ascending: false });
 
     if (period === '7d') {
@@ -96,6 +139,25 @@ serve(async (req) => {
 
     const { data: orders, error } = await query;
     if (error) throw error;
+
+    // Fetch tracking links
+    const { data: trackingLinks } = await supabase
+      .from('tracking_links')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    // Compute ref metrics
+    const refMetrics: Record<string, { total: number; paid: number; revenue: number }> = {};
+    for (const o of (orders || [])) {
+      if (o.ref_code) {
+        if (!refMetrics[o.ref_code]) refMetrics[o.ref_code] = { total: 0, paid: 0, revenue: 0 };
+        refMetrics[o.ref_code].total++;
+        if (o.payment_status === 'paid') {
+          refMetrics[o.ref_code].paid++;
+          refMetrics[o.ref_code].revenue += 29.90;
+        }
+      }
+    }
 
     const total = orders?.length || 0;
     const paid = orders?.filter(o => o.payment_status === 'paid').length || 0;
@@ -116,6 +178,8 @@ serve(async (req) => {
       metrics: { total, paid, pending, expired, completed, conversionRate, estimatedRevenue },
       funnel,
       orders: orders || [],
+      trackingLinks: trackingLinks || [],
+      refMetrics,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -17,6 +17,16 @@ import { PurchaseNotification } from "./components/ui/PurchaseNotification";
 
 const queryClient = new QueryClient();
 
+// Capture ref param from URL and persist to localStorage
+function RefCapture() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("ref");
+  if (ref) {
+    localStorage.setItem("ref_code", ref);
+  }
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -24,6 +34,7 @@ const App = () => (
       <Sonner />
       <PurchaseNotification />
       <BrowserRouter>
+        <RefCapture />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/criar" element={<CreateMusic />} />
