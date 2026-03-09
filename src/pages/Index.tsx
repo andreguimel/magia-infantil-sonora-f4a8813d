@@ -1,21 +1,23 @@
+import { lazy, Suspense } from "react";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { Features } from "@/components/landing/Features";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { Testimonials } from "@/components/landing/Testimonials";
-import { Pricing } from "@/components/landing/Pricing";
-import { Guarantee } from "@/components/landing/Guarantee";
-import { FAQ } from "@/components/landing/FAQ";
-import { Footer } from "@/components/landing/Footer";
-import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
-import { UrgencyBanner } from "@/components/ui/UrgencyBanner";
-
-import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { StickyMobileCTA } from "@/components/ui/StickyMobileCTA";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { MagicButton } from "@/components/ui/MagicButton";
 import { Sparkles } from "lucide-react";
+
+// Lazy load below-fold sections
+const Features = lazy(() => import("@/components/landing/Features").then(m => ({ default: m.Features })));
+const HowItWorks = lazy(() => import("@/components/landing/HowItWorks").then(m => ({ default: m.HowItWorks })));
+const Testimonials = lazy(() => import("@/components/landing/Testimonials").then(m => ({ default: m.Testimonials })));
+const Pricing = lazy(() => import("@/components/landing/Pricing").then(m => ({ default: m.Pricing })));
+const Guarantee = lazy(() => import("@/components/landing/Guarantee").then(m => ({ default: m.Guarantee })));
+const FAQ = lazy(() => import("@/components/landing/FAQ").then(m => ({ default: m.FAQ })));
+const Footer = lazy(() => import("@/components/landing/Footer").then(m => ({ default: m.Footer })));
+const ExitIntentPopup = lazy(() => import("@/components/ui/ExitIntentPopup").then(m => ({ default: m.ExitIntentPopup })));
+const UrgencyBanner = lazy(() => import("@/components/ui/UrgencyBanner").then(m => ({ default: m.UrgencyBanner })));
+const WhatsAppButton = lazy(() => import("@/components/ui/WhatsAppButton").then(m => ({ default: m.WhatsAppButton })));
+const StickyMobileCTA = lazy(() => import("@/components/ui/StickyMobileCTA").then(m => ({ default: m.StickyMobileCTA })));
 
 function IntermediateCTA() {
   const navigate = useNavigate();
@@ -49,24 +51,27 @@ function IntermediateCTA() {
   );
 }
 
+const LazySection = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="min-h-[200px]" />}>{children}</Suspense>
+);
+
 const Index = () => {
   return (
     <main className="min-h-screen">
-      <UrgencyBanner />
+      <Suspense fallback={null}><UrgencyBanner /></Suspense>
       <Navbar />
       <Hero />
-      <Features />
-      <HowItWorks />
-      <Testimonials />
+      <LazySection><Features /></LazySection>
+      <LazySection><HowItWorks /></LazySection>
+      <LazySection><Testimonials /></LazySection>
       <IntermediateCTA />
-      <Pricing />
-      <Guarantee />
-      <FAQ />
-      <Footer />
-      <ExitIntentPopup />
-      
-      <WhatsAppButton />
-      <StickyMobileCTA />
+      <LazySection><Pricing /></LazySection>
+      <LazySection><Guarantee /></LazySection>
+      <LazySection><FAQ /></LazySection>
+      <LazySection><Footer /></LazySection>
+      <Suspense fallback={null}><ExitIntentPopup /></Suspense>
+      <Suspense fallback={null}><WhatsAppButton /></Suspense>
+      <Suspense fallback={null}><StickyMobileCTA /></Suspense>
     </main>
   );
 };
