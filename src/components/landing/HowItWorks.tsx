@@ -4,7 +4,7 @@ const steps = [
   {
     number: "1",
     emoji: "✏️",
-    title: "Preencha o Formulário",
+    title: "Preencha",
     description: "Digite o nome da criança, idade, tema favorito e uma mensagem especial opcional",
     color: "bg-primary",
   },
