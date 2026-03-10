@@ -540,6 +540,16 @@ export default function AdminDashboard() {
                     className="w-[220px]"
                   />
                 </div>
+                <div className="space-y-1">
+                  <label className="text-sm text-muted-foreground">Senha do parceiro</label>
+                  <Input
+                    type="password"
+                    placeholder="Senha de acesso"
+                    value={newLinkPassword}
+                    onChange={(e) => setNewLinkPassword(e.target.value)}
+                    className="w-[180px]"
+                  />
+                </div>
                 <Button onClick={handleCreateLink} disabled={creatingLink || !newLinkCode.trim() || !newLinkLabel.trim()}>
                   <Plus className="h-4 w-4 mr-1" /> Criar
                 </Button>
