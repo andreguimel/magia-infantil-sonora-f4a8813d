@@ -110,15 +110,45 @@ serve(async (req) => {
         });
       }
 
+      // Set affiliate password
+      if (action === 'set_affiliate_password') {
+        const { linkId, password: pwd } = body;
+        if (!linkId || !pwd) {
+          return new Response(JSON.stringify({ error: 'linkId and password required' }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const encoder = new TextEncoder();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(pwd));
+        const passwordHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        const { error: updErr } = await supabase
+          .from('tracking_links')
+          .update({ password_hash: passwordHash })
+          .eq('id', linkId);
+        if (updErr) throw updErr;
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       if (action === 'create_tracking_link') {
         if (!code || !label) {
           return new Response(JSON.stringify({ error: 'code and label required' }), {
             status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
+        // Hash password if provided
+        let passwordHash = null;
+        if (body.password) {
+          const encoder = new TextEncoder();
+          const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(body.password));
+          passwordHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        const insertData: Record<string, unknown> = { code: code.toLowerCase().trim(), label: label.trim() };
+        if (passwordHash) insertData.password_hash = passwordHash;
         const { data, error: insertError } = await supabase
           .from('tracking_links')
-          .insert({ code: code.toLowerCase().trim(), label: label.trim() })
+          .insert(insertData)
           .select()
           .single();
         if (insertError) {
@@ -163,7 +193,7 @@ serve(async (req) => {
     // Fetch tracking links
     const { data: trackingLinks } = await supabase
       .from('tracking_links')
-      .select('id, code, label, created_at, commission_percent, commission_paid')
+      .select('id, code, label, created_at, commission_percent, commission_paid, password_hash')
       .order('created_at', { ascending: false });
 
     // Compute ref metrics

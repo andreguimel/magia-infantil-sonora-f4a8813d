@@ -16,6 +16,8 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AffiliateLogin = lazy(() => import("./pages/AffiliateLogin"));
+const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
 
 // Lazy load non-critical UI components
 const PurchaseNotification = lazy(() =>
@@ -55,6 +57,8 @@ const App = () => (
             <Route path="/termos" element={<TermsOfUse />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/parceiro" element={<AffiliateLogin />} />
+            <Route path="/parceiro/dashboard" element={<AffiliateDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

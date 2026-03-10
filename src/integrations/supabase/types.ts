@@ -91,6 +91,7 @@ export type Database = {
           created_at: string
           id: string
           label: string
+          password_hash: string | null
         }
         Insert: {
           code: string
@@ -99,6 +100,7 @@ export type Database = {
           created_at?: string
           id?: string
           label: string
+          password_hash?: string | null
         }
         Update: {
           code?: string
@@ -107,6 +109,7 @@ export type Database = {
           created_at?: string
           id?: string
           label?: string
+          password_hash?: string | null
         }
         Relationships: []
       }

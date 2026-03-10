@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { RefreshCw, LogOut, ShoppingCart, CheckCircle, XCircle, TrendingUp, DollarSign, Search, FileDown, Play, Trash2, Link, Plus, Copy } from "lucide-react";
+import { RefreshCw, LogOut, ShoppingCart, CheckCircle, XCircle, TrendingUp, DollarSign, Search, FileDown, Play, Trash2, Link, Plus, Copy, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import OrderDetailModal from "@/components/admin/OrderDetailModal";
 
@@ -57,6 +57,7 @@ interface TrackingLink {
   created_at: string;
   commission_percent: number;
   commission_paid: number;
+  password_hash: string | null;
 }
 
 interface RefMetrics {
@@ -108,6 +109,7 @@ export default function AdminDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [newLinkCode, setNewLinkCode] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [newLinkPassword, setNewLinkPassword] = useState("");
   const [creatingLink, setCreatingLink] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -222,7 +224,7 @@ export default function AdminDashboard() {
           apikey: SUPABASE_KEY,
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ action: "create_tracking_link", code: newLinkCode.trim(), label: newLinkLabel.trim() }),
+        body: JSON.stringify({ action: "create_tracking_link", code: newLinkCode.trim(), label: newLinkLabel.trim(), password: newLinkPassword.trim() || undefined }),
       });
       if (res.status === 409) {
         toast({ title: "Erro", description: "Código já existe", variant: "destructive" });
@@ -232,6 +234,7 @@ export default function AdminDashboard() {
       toast({ title: "Link criado!" });
       setNewLinkCode("");
       setNewLinkLabel("");
+      setNewLinkPassword("");
       fetchData();
     } catch {
       toast({ title: "Erro", description: "Falha ao criar link", variant: "destructive" });
@@ -537,6 +540,16 @@ export default function AdminDashboard() {
                     className="w-[220px]"
                   />
                 </div>
+                <div className="space-y-1">
+                  <label className="text-sm text-muted-foreground">Senha do parceiro</label>
+                  <Input
+                    type="password"
+                    placeholder="Senha de acesso"
+                    value={newLinkPassword}
+                    onChange={(e) => setNewLinkPassword(e.target.value)}
+                    className="w-[180px]"
+                  />
+                </div>
                 <Button onClick={handleCreateLink} disabled={creatingLink || !newLinkCode.trim() || !newLinkLabel.trim()}>
                   <Plus className="h-4 w-4 mr-1" /> Criar
                 </Button>
@@ -600,6 +613,20 @@ export default function AdminDashboard() {
                           <div className="flex gap-1">
                             <Button variant="ghost" size="sm" onClick={() => copyLinkUrl(link.code)} title="Copiar URL">
                               <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => {
+                              const pwd = prompt(`Definir nova senha para "${link.label}":`);
+                              if (!pwd) return;
+                              fetch(`${SUPABASE_URL}/functions/v1/admin-dashboard`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY, Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ action: "set_affiliate_password", linkId: link.id, password: pwd }),
+                              }).then(r => {
+                                if (r.ok) { toast({ title: "Senha definida!" }); fetchData(); }
+                                else toast({ title: "Erro", variant: "destructive" });
+                              });
+                            }} title={link.password_hash ? "Redefinir senha" : "Definir senha"}>
+                              <Key className={`h-4 w-4 ${link.password_hash ? "text-green-600" : "text-orange-500"}`} />
                             </Button>
                             <Button variant="ghost" size="sm" onClick={() => handlePayCommission(link)} title="Registrar pagamento">
                               <DollarSign className="h-4 w-4 text-green-600" />

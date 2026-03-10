@@ -1,68 +1,35 @@
 
 
-## Painel do Afiliado com Senha — Plano
+# Botao de Reengajamento para Clientes com Musica Completa
 
-### Abordagem
+## Objetivo
+Adicionar um botao no modal de detalhes do pedido (admin) para enviar email de reengajamento a clientes que ja receberam sua musica, oferecendo 50% de desconto para criar uma nova.
 
-Cada afiliado terá sua própria senha, definida por você no painel admin. O fluxo é:
+## Mudancas
 
-1. Afiliado acessa `/parceiro`
-2. Insere seu **código** e **senha**
-3. Vê suas métricas de vendas
+### 1. Nova Edge Function: `send-reengagement-email`
+Criar `supabase/functions/send-reengagement-email/index.ts` baseada na estrutura existente do `send-recovery-email`:
+- Verificacao de token admin (mesmo padrao HMAC)
+- Recebe `email` e `childName` no body
+- Envia email via Brevo com template diferente: tom positivo de quem ja comprou, mencionando o nome da crianca, convidando a criar outra musica com cupom **VOLTEI50** (50% de desconto)
+- Link direciona para `/criar?coupon=VOLTEI50`
+- Assunto: "Crie mais uma musica magica para [nome]! 50% OFF"
 
-### Mudanças no Banco
+### 2. Atualizar OrderDetailModal
+Em `src/components/admin/OrderDetailModal.tsx`:
+- Adicionar novo botao "Enviar Email de Reengajamento" visivel apenas quando `payment_status === "paid"` e `status === "completed"` e `user_email` existe
+- Estilo diferenciado (cor roxa/accent) para distinguir do botao de recuperacao existente
+- Handler chama a nova Edge Function com o token admin
 
-Adicionar coluna `password_hash` na tabela `tracking_links` para armazenar a senha (hash SHA-256) de cada afiliado.
+### 3. Suporte ao cupom VOLTEI50 na pagina de pagamento
+Verificar se a pagina de pagamento (`Payment.tsx`) ja suporta cupons via URL genericamente. Se sim, apenas garantir que VOLTEI50 aplique 50%. Se nao, adicionar suporte.
 
-### Novas Edge Functions
+## Detalhes Tecnicos
 
-**1. `affiliate-login`**
-- Recebe `{ code, password }`
-- Busca o tracking_link pelo `code`
-- Verifica a senha (hash SHA-256)
-- Retorna um token HMAC temporário (mesmo padrão do admin-login, mas com role `affiliate` e o `code` no payload)
+**Arquivos modificados:**
+- `supabase/functions/send-reengagement-email/index.ts` (novo)
+- `src/components/admin/OrderDetailModal.tsx` (novo botao)
+- `src/pages/Payment.tsx` (suporte ao cupom VOLTEI50 se necessario)
 
-**2. `affiliate-stats`**
-- Valida o token do afiliado (Bearer)
-- Extrai o `code` do payload do token
-- Conta pedidos com `ref_code = code` na `music_tasks`
-- Retorna métricas agregadas: total checkouts, pagos, conversão, receita, comissão devida/paga/saldo
-- Nunca expõe dados pessoais de clientes
-
-### Frontend
-
-**1. Página `/parceiro` (AffiliateLogin)**
-- Formulário simples: campo código + campo senha + botão entrar
-- Design similar ao `/admin` (Card centralizado, ícone)
-- Salva token no `sessionStorage`
-- Redireciona para `/parceiro/dashboard`
-
-**2. Página `/parceiro/dashboard` (AffiliateDashboard)**
-- Cards com métricas: Checkouts, Vendas, Conversão, Receita, Comissão Devida, Paga, Saldo
-- Botão de logout
-- Redireciona para `/parceiro` se token inválido
-
-**3. App.tsx**
-- Duas novas rotas lazy: `/parceiro` e `/parceiro/dashboard`
-
-### Painel Admin — Definir Senha do Afiliado
-
-Atualizar o admin-dashboard (edge function + frontend) para permitir definir/alterar a senha de cada afiliado:
-- Novo campo de senha ao criar tracking link
-- Botão para redefinir senha em links existentes
-- A edge function `admin-dashboard` recebe a senha em texto e grava o hash SHA-256
-
-### Arquivos
-
-| Arquivo | Ação |
-|---|---|
-| `tracking_links` (migração) | Adicionar coluna `password_hash text` |
-| `supabase/functions/affiliate-login/index.ts` | Novo |
-| `supabase/functions/affiliate-stats/index.ts` | Novo |
-| `supabase/functions/admin-dashboard/index.ts` | Editar (suporte a senha) |
-| `supabase/config.toml` | Adicionar 2 functions |
-| `src/pages/AffiliateLogin.tsx` | Novo |
-| `src/pages/AffiliateDashboard.tsx` | Novo |
-| `src/pages/AdminDashboard.tsx` | Editar (campo senha no CRUD de links) |
-| `src/App.tsx` | Adicionar rotas |
+**Cupom:** VOLTEI50 com 50% de desconto, aplicado via parametro `?coupon=VOLTEI50` na URL
 

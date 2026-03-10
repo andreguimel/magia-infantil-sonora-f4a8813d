@@ -1,0 +1,1 @@
+ALTER TABLE public.tracking_links ADD COLUMN password_hash text;
