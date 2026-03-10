@@ -193,7 +193,7 @@ serve(async (req) => {
     // Fetch tracking links
     const { data: trackingLinks } = await supabase
       .from('tracking_links')
-      .select('id, code, label, created_at, commission_percent, commission_paid')
+      .select('id, code, label, created_at, commission_percent, commission_paid, password_hash')
       .order('created_at', { ascending: false });
 
     // Compute ref metrics

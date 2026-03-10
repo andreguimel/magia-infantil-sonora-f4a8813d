@@ -57,6 +57,8 @@ const App = () => (
             <Route path="/termos" element={<TermsOfUse />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/parceiro" element={<AffiliateLogin />} />
+            <Route path="/parceiro/dashboard" element={<AffiliateDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
