@@ -110,6 +110,7 @@ export default function AdminDashboard() {
   const [newLinkCode, setNewLinkCode] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkPassword, setNewLinkPassword] = useState("");
+  const [newLinkCommission, setNewLinkCommission] = useState("50");
   const [creatingLink, setCreatingLink] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
