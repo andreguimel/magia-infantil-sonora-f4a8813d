@@ -53,6 +53,7 @@ export default function OrderDetailModal({ order, open, onOpenChange, onRetrySuc
 
   const canSendRecovery = order.user_email && (order.payment_status === "expired" || order.payment_status === "cancelled" || order.payment_status === "pending");
   const canSendReengagement = order.user_email && order.payment_status === "paid" && order.status === "completed";
+  const canRetry = order.payment_status === "paid" && (order.status === "failed" || order.status === "processing");
 
   const handleSendRecoveryEmail = async () => {
     if (!order.user_email) return;
