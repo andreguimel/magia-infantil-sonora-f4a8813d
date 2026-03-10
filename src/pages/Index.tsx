@@ -6,6 +6,7 @@ import { Sparkles } from "lucide-react";
 
 // Lazy load below-fold sections
 const Features = lazy(() => import("@/components/landing/Features").then(m => ({ default: m.Features })));
+const RealExamples = lazy(() => import("@/components/landing/RealExamples").then(m => ({ default: m.RealExamples })));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks").then(m => ({ default: m.HowItWorks })));
 const Testimonials = lazy(() => import("@/components/landing/Testimonials").then(m => ({ default: m.Testimonials })));
 const Pricing = lazy(() => import("@/components/landing/Pricing").then(m => ({ default: m.Pricing })));
