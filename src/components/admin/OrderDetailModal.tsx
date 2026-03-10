@@ -43,9 +43,10 @@ interface Props {
   onRetrySuccess?: () => void;
 }
 
-export default function OrderDetailModal({ order, open, onOpenChange }: Props) {
+export default function OrderDetailModal({ order, open, onOpenChange, onRetrySuccess }: Props) {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [sendingReengagement, setSendingReengagement] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const { toast } = useToast();
 
   if (!order) return null;
