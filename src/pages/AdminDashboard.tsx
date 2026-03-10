@@ -614,6 +614,20 @@ export default function AdminDashboard() {
                             <Button variant="ghost" size="sm" onClick={() => copyLinkUrl(link.code)} title="Copiar URL">
                               <Copy className="h-4 w-4" />
                             </Button>
+                            <Button variant="ghost" size="sm" onClick={() => {
+                              const pwd = prompt(`Definir nova senha para "${link.label}":`);
+                              if (!pwd) return;
+                              fetch(`${SUPABASE_URL}/functions/v1/admin-dashboard`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY, Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ action: "set_affiliate_password", linkId: link.id, password: pwd }),
+                              }).then(r => {
+                                if (r.ok) { toast({ title: "Senha definida!" }); fetchData(); }
+                                else toast({ title: "Erro", variant: "destructive" });
+                              });
+                            }} title={link.password_hash ? "Redefinir senha" : "Definir senha"}>
+                              <Key className={`h-4 w-4 ${link.password_hash ? "text-green-600" : "text-orange-500"}`} />
+                            </Button>
                             <Button variant="ghost" size="sm" onClick={() => handlePayCommission(link)} title="Registrar pagamento">
                               <DollarSign className="h-4 w-4 text-green-600" />
                             </Button>
