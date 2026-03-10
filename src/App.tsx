@@ -16,6 +16,8 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AffiliateLogin = lazy(() => import("./pages/AffiliateLogin"));
+const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
 
 // Lazy load non-critical UI components
 const PurchaseNotification = lazy(() =>
