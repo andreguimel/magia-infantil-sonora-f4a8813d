@@ -1,9 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { MagicButton } from "@/components/ui/MagicButton";
 import { Sparkles } from "lucide-react";
 
 // Lazy load below-fold sections
@@ -24,12 +22,7 @@ function IntermediateCTA() {
   return (
     <section className="py-16 bg-gradient-to-br from-primary/5 via-lavender/5 to-secondary/5">
       <div className="container-rounded">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center max-w-2xl mx-auto"
-        >
+        <div className="text-center max-w-2xl mx-auto">
           <span className="text-5xl block mb-4">💛</span>
           <h2 className="text-3xl md:text-4xl font-baloo font-bold mb-4">
             Sua criança merece esse{" "}
@@ -38,14 +31,14 @@ function IntermediateCTA() {
           <p className="text-lg text-muted-foreground mb-6">
             Imagine o sorriso ao ouvir o próprio nome cantado em uma música feita só pra ela!
           </p>
-          <MagicButton size="lg" onClick={() => navigate("/criar")}>
+          <button onClick={() => navigate("/criar")} className="btn-magic text-lg flex items-center justify-center gap-2 mx-auto">
             <Sparkles className="w-5 h-5" />
             Criar música personalizada — R$ 9,90
-          </MagicButton>
+          </button>
           <p className="text-xs text-muted-foreground mt-3">
             ✅ Pagamento seguro via Pix • Download instantâneo
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
