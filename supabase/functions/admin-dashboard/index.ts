@@ -145,6 +145,7 @@ serve(async (req) => {
           passwordHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
         const insertData: Record<string, unknown> = { code: code.toLowerCase().trim(), label: label.trim() };
+        if (body.commission_percent != null) insertData.commission_percent = Number(body.commission_percent);
         if (passwordHash) insertData.password_hash = passwordHash;
         const { data, error: insertError } = await supabase
           .from('tracking_links')

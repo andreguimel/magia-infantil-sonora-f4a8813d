@@ -552,6 +552,18 @@ export default function AdminDashboard() {
                     className="w-[180px]"
                   />
                 </div>
+                <div className="space-y-1">
+                  <label className="text-sm text-muted-foreground">Comissão (%)</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="50"
+                    value={newLinkCommission}
+                    onChange={(e) => setNewLinkCommission(e.target.value)}
+                    className="w-[100px]"
+                  />
+                </div>
                 <Button onClick={handleCreateLink} disabled={creatingLink || !newLinkCode.trim() || !newLinkLabel.trim()}>
                   <Plus className="h-4 w-4 mr-1" /> Criar
                 </Button>
