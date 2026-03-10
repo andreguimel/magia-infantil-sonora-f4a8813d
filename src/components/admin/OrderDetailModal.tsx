@@ -103,6 +103,32 @@ export default function OrderDetailModal({ order, open, onOpenChange, onRetrySuc
     }
   };
 
+  const handleRetryGeneration = async () => {
+    if (!order) return;
+    setRetrying(true);
+    try {
+      const adminSecret = prompt("Insira o ADMIN_SECRET para re-gerar:");
+      if (!adminSecret) { setRetrying(false); return; }
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/start-music-after-payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+        body: JSON.stringify({ taskId: order.id, adminSecret }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao re-gerar");
+      toast({ title: "✅ Geração reiniciada!", description: "A música está sendo gerada novamente." });
+      onRetrySuccess?.();
+    } catch (e: any) {
+      toast({ title: "Erro", description: e.message || "Falha ao re-gerar música", variant: "destructive" });
+    } finally {
+      setRetrying(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
