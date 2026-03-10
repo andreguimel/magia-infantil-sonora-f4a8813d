@@ -56,6 +56,7 @@ const Index = () => {
       <Navbar />
       <Hero />
       <LazySection><Features /></LazySection>
+      <LazySection><RealExamples /></LazySection>
       <LazySection><HowItWorks /></LazySection>
       <LazySection><Testimonials /></LazySection>
       <IntermediateCTA />
