@@ -653,7 +653,7 @@ export default function AdminDashboard() {
         </TabsContent>
       </Tabs>
 
-      <OrderDetailModal order={selectedOrder} open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)} />
+      <OrderDetailModal order={selectedOrder} open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)} onRetrySuccess={() => { setSelectedOrder(null); fetchData(); }} />
     </div>
   );
 }

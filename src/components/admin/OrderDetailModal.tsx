@@ -209,6 +209,19 @@ export default function OrderDetailModal({ order, open, onOpenChange, onRetrySuc
           </Button>
         )}
 
+        {/* Retry Generation Button */}
+        {canRetry && (
+          <Button
+            size="sm"
+            onClick={handleRetryGeneration}
+            disabled={retrying}
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            <RotateCcw className={`h-4 w-4 mr-2 ${retrying ? "animate-spin" : ""}`} />
+            {retrying ? "Re-gerando..." : "🔄 Re-gerar Música"}
+          </Button>
+        )}
+
         {/* Audio Player */}
         {order.audio_url && (
           <div className="space-y-2">
