@@ -70,7 +70,7 @@ export function RealExamples() {
                 </div>
 
                 <h3 className="font-baloo font-bold text-lg mb-0.5">
-                  Música do {ex.name}
+                  Música {ex.prefix} {ex.name}
                 </h3>
                 <p className="text-xs text-muted-foreground mb-4">
                   <Music className="w-3 h-3 inline mr-1" />{ex.theme}
