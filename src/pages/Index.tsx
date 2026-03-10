@@ -55,8 +55,8 @@ const Index = () => {
       <Suspense fallback={null}><UrgencyBanner /></Suspense>
       <Navbar />
       <Hero />
-      <LazySection><Features /></LazySection>
       <LazySection><RealExamples /></LazySection>
+      <LazySection><Features /></LazySection>
       <LazySection><HowItWorks /></LazySection>
       <LazySection><Testimonials /></LazySection>
       <IntermediateCTA />
