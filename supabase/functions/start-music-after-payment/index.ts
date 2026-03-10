@@ -83,6 +83,15 @@ serve(async (req) => {
       );
     }
 
+    // For admin bypass on failed tasks, reset error state
+    if (isAdminBypass && task.status === "failed") {
+      await supabase
+        .from("music_tasks")
+        .update({ error_message: null, audio_url: null, status: "awaiting_payment" })
+        .eq("id", taskId);
+      console.log("Admin bypass: reset failed task", taskId);
+    }
+
     // If admin bypass, mark as paid
     if (isAdminBypass) {
       await supabase
