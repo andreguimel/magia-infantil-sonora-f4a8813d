@@ -109,6 +109,7 @@ export default function AdminDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [newLinkCode, setNewLinkCode] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [newLinkPassword, setNewLinkPassword] = useState("");
   const [creatingLink, setCreatingLink] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
