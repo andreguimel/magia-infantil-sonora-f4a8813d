@@ -224,7 +224,7 @@ export default function AdminDashboard() {
           apikey: SUPABASE_KEY,
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ action: "create_tracking_link", code: newLinkCode.trim(), label: newLinkLabel.trim() }),
+        body: JSON.stringify({ action: "create_tracking_link", code: newLinkCode.trim(), label: newLinkLabel.trim(), password: newLinkPassword.trim() || undefined }),
       });
       if (res.status === 409) {
         toast({ title: "Erro", description: "Código já existe", variant: "destructive" });
