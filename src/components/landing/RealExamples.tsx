@@ -2,9 +2,9 @@ import { useState, useRef } from "react";
 import { Play, Pause, Music } from "lucide-react";
 
 const examples = [
-  { name: "Pedro Guímel", emoji: "🦸", theme: "Aventura", url: "/audio/demo-pedro.mp3", color: "bg-primary" },
-  { name: "Isabela", emoji: "🌿", theme: "Natureza Mágica", url: "/audio/demo-isabela-real.mp3", color: "bg-secondary" },
-  { name: "Amanda", emoji: "👑", theme: "Princesas Encantadas", url: "/audio/demo-amanda-real.mp3", color: "bg-accent" },
+  { name: "Pedro Guímel", emoji: "⚽", theme: "Futebol", url: "/audio/demo-pedro.mp3", color: "bg-primary" },
+  { name: "Isabela", emoji: "👑", theme: "Princesa", url: "/audio/demo-isabela-real.mp3", color: "bg-secondary" },
+  { name: "Amanda", emoji: "👑", theme: "Princesa", url: "/audio/demo-amanda-real.mp3", color: "bg-accent" },
 ];
 
 export function RealExamples() {
