@@ -40,6 +40,7 @@ interface Props {
   order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRetrySuccess?: () => void;
 }
 
 export default function OrderDetailModal({ order, open, onOpenChange }: Props) {
