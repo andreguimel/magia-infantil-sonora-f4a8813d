@@ -215,7 +215,7 @@ serve(async (req) => {
     const expired = orders?.filter(o => o.payment_status === 'expired' || o.payment_status === 'cancelled').length || 0;
     const completed = orders?.filter(o => o.status === 'completed').length || 0;
     const conversionRate = total > 0 ? Math.round((paid / total) * 100) : 0;
-    const estimatedRevenue = paid * 29.90;
+    const estimatedRevenue = paid * 9.90;
 
     const funnel = [
       { stage: 'Checkout Iniciado', count: total },
