@@ -48,6 +48,7 @@ interface Order {
   access_code: string | null;
   download_expires_at: string | null;
   ref_code: string | null;
+  price_paid: number | null;
 }
 
 interface TrackingLink {
