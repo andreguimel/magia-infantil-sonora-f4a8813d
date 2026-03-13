@@ -52,14 +52,17 @@ function formatDate(dateStr: string) {
 
 function exportWeekCSV(week: WeekData, label: string, commissionPercent: number) {
   const headers = ["Nome da Criança", "Tema", "Estilo", "Data", "Valor Venda", "Comissão"];
-  const rows = week.orders.map(o => [
-    o.child_name,
-    o.theme,
-    o.music_style || "",
-    new Date(o.created_at).toLocaleDateString("pt-BR"),
-    "9.90",
-    (9.90 * commissionPercent / 100).toFixed(2),
-  ]);
+  const rows = week.orders.map(o => {
+    const price = o.price_paid || 9.90;
+    return [
+      o.child_name,
+      o.theme,
+      o.music_style || "",
+      new Date(o.created_at).toLocaleDateString("pt-BR"),
+      price.toFixed(2),
+      (price * commissionPercent / 100).toFixed(2),
+    ];
+  });
   const totalRow = ["TOTAL", "", "", "", week.revenue.toFixed(2), week.commission.toFixed(2)];
   const csv = [headers, ...rows, totalRow].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
