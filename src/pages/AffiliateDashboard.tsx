@@ -50,6 +50,19 @@ function formatDate(dateStr: string) {
   return `${d}/${m}/${y}`;
 }
 
+function getSaleType(pricePaid: number | null): string {
+  const price = pricePaid || 9.90;
+  if (price >= 24) return "Pacote";
+  if (price >= 14) return "Upsell";
+  return "Avulsa";
+}
+
+function getSaleTypeBadgeVariant(type: string): "default" | "secondary" | "outline" {
+  if (type === "Pacote") return "default";
+  if (type === "Upsell") return "secondary";
+  return "outline";
+}
+
 function exportWeekCSV(week: WeekData, label: string, commissionPercent: number) {
   const headers = ["Nome da Criança", "Tema", "Estilo", "Data", "Valor Venda", "Comissão"];
   const rows = week.orders.map(o => {
