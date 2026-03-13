@@ -2,11 +2,31 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, ShoppingCart, CheckCircle, TrendingUp, DollarSign, RefreshCw, Percent } from "lucide-react";
+import { LogOut, ShoppingCart, CheckCircle, TrendingUp, DollarSign, RefreshCw, Percent, FileDown, CalendarDays } from "lucide-react";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+interface WeekOrder {
+  id: string;
+  child_name: string;
+  theme: string;
+  music_style: string | null;
+  created_at: string;
+  payment_status: string | null;
+}
+
+interface WeekData {
+  weekStart: string;
+  weekEnd: string;
+  count: number;
+  revenue: number;
+  commission: number;
+  orders: WeekOrder[];
+}
 
 interface AffiliateData {
   label: string;
@@ -21,6 +41,33 @@ interface AffiliateData {
     commissionPaid: number;
     balance: number;
   };
+  weeks: WeekData[];
+}
+
+function formatDate(dateStr: string) {
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function exportWeekCSV(week: WeekData, label: string, commissionPercent: number) {
+  const headers = ["Nome da Criança", "Tema", "Estilo", "Data", "Valor Venda", "Comissão"];
+  const rows = week.orders.map(o => [
+    o.child_name,
+    o.theme,
+    o.music_style || "",
+    new Date(o.created_at).toLocaleDateString("pt-BR"),
+    "9.90",
+    (9.90 * commissionPercent / 100).toFixed(2),
+  ]);
+  const totalRow = ["TOTAL", "", "", "", week.revenue.toFixed(2), week.commission.toFixed(2)];
+  const csv = [headers, ...rows, totalRow].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `relatorio-${label}-${week.weekStart}-a-${week.weekEnd}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export default function AffiliateDashboard() {
@@ -68,7 +115,7 @@ export default function AffiliateDashboard() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -132,7 +179,7 @@ export default function AffiliateDashboard() {
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Percent className="h-5 w-5" /> Comissões ({data.commissionPercent}%)
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <Card className="border-primary/20">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">Comissão Devida</CardTitle>
@@ -156,6 +203,71 @@ export default function AffiliateDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Weekly Reports */}
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <CalendarDays className="h-5 w-5" /> Relatórios Semanais
+            </h2>
+            {data.weeks.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Nenhuma venda registrada ainda.
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {data.weeks.map((week) => (
+                  <Card key={week.weekStart}>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4" />
+                        Semana {formatDate(week.weekStart)} — {formatDate(week.weekEnd)}
+                      </CardTitle>
+                      <div className="flex items-center gap-3">
+                        <div className="flex gap-4 text-sm">
+                          <span><strong>{week.count}</strong> venda{week.count !== 1 ? "s" : ""}</span>
+                          <span>Receita: <strong className="text-green-600">R$ {week.revenue.toFixed(2)}</strong></span>
+                          <span>Comissão: <strong className="text-primary">R$ {week.commission.toFixed(2)}</strong></span>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => exportWeekCSV(week, data.code, data.commissionPercent)}>
+                          <FileDown className="h-4 w-4 mr-1" /> CSV
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Criança</TableHead>
+                            <TableHead>Tema</TableHead>
+                            <TableHead>Estilo</TableHead>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Valor</TableHead>
+                            <TableHead>Comissão</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {week.orders.map((o) => (
+                            <TableRow key={o.id}>
+                              <TableCell className="font-medium">{o.child_name}</TableCell>
+                              <TableCell>{o.theme}</TableCell>
+                              <TableCell className="text-muted-foreground text-xs">{o.music_style || "—"}</TableCell>
+                              <TableCell className="text-muted-foreground text-xs">
+                                {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                              </TableCell>
+                              <TableCell>R$ 9,90</TableCell>
+                              <TableCell className="text-primary font-semibold">
+                                R$ {(9.90 * data.commissionPercent / 100).toFixed(2)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </>
         )}
 

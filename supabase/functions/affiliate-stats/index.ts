@@ -68,11 +68,12 @@ serve(async (req) => {
       });
     }
 
-    // Count orders with this ref_code
+    // Count all orders with this ref_code
     const { data: orders } = await supabase
       .from('music_tasks')
-      .select('id, payment_status')
-      .eq('ref_code', code);
+      .select('id, payment_status, child_name, theme, music_style, created_at')
+      .eq('ref_code', code)
+      .order('created_at', { ascending: false });
 
     const total = orders?.length || 0;
     const paid = orders?.filter(o => o.payment_status === 'paid').length || 0;
@@ -80,6 +81,41 @@ serve(async (req) => {
     const revenue = paid * 9.90;
     const commissionDue = revenue * (link.commission_percent / 100);
     const balance = commissionDue - link.commission_paid;
+
+    // Weekly breakdown: group paid orders by week (Monday-Sunday)
+    const paidOrders = (orders || []).filter(o => o.payment_status === 'paid');
+    const weeklyBreakdown: Record<string, { weekStart: string; weekEnd: string; count: number; revenue: number; commission: number; orders: typeof paidOrders }> = {};
+
+    for (const o of paidOrders) {
+      const d = new Date(o.created_at);
+      // Get Monday of that week
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d);
+      monday.setDate(diff);
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      const key = monday.toISOString().slice(0, 10);
+      if (!weeklyBreakdown[key]) {
+        weeklyBreakdown[key] = {
+          weekStart: monday.toISOString().slice(0, 10),
+          weekEnd: sunday.toISOString().slice(0, 10),
+          count: 0,
+          revenue: 0,
+          commission: 0,
+          orders: [],
+        };
+      }
+      weeklyBreakdown[key].count++;
+      weeklyBreakdown[key].revenue += 9.90;
+      weeklyBreakdown[key].commission += 9.90 * (link.commission_percent / 100);
+      weeklyBreakdown[key].orders.push(o);
+    }
+
+    // Sort weeks descending
+    const weeks = Object.values(weeklyBreakdown).sort((a, b) => b.weekStart.localeCompare(a.weekStart));
 
     return new Response(JSON.stringify({
       label: link.label,
@@ -94,6 +130,7 @@ serve(async (req) => {
         commissionPaid: link.commission_paid,
         balance,
       },
+      weeks,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
