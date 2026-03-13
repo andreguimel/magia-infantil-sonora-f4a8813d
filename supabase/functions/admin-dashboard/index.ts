@@ -175,7 +175,7 @@ serve(async (req) => {
 
     let query = supabase
       .from('music_tasks')
-      .select('id, child_name, theme, user_email, payment_status, status, created_at, billing_id, music_style, age_group, lyrics, audio_url, download_url, access_code, download_expires_at, ref_code')
+      .select('id, child_name, theme, user_email, payment_status, status, created_at, billing_id, music_style, age_group, lyrics, audio_url, download_url, access_code, download_expires_at, ref_code, price_paid')
       .order('created_at', { ascending: false });
 
     if (period === '7d') {
