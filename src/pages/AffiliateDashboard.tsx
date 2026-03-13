@@ -17,6 +17,7 @@ interface WeekOrder {
   music_style: string | null;
   created_at: string;
   payment_status: string | null;
+  price_paid: number | null;
 }
 
 interface WeekData {
