@@ -94,6 +94,32 @@ function exportCSV(orders: Order[]) {
   URL.revokeObjectURL(url);
 }
 
+function exportAffiliateWeeklyCSV(orders: Order[], link: TrackingLink) {
+  // Filter paid orders for this affiliate in the last 7 days
+  const now = new Date();
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekOrders = orders.filter(o => o.ref_code === link.code && o.payment_status === 'paid' && new Date(o.created_at) >= weekAgo);
+  const commission = 9.90 * (link.commission_percent / 100);
+  const headers = ["Nome da Criança", "Tema", "Estilo", "Email", "Data", "Valor Venda", "Comissão"];
+  const rows = weekOrders.map(o => [
+    o.child_name, o.theme, o.music_style || "", o.user_email || "",
+    new Date(o.created_at).toLocaleDateString("pt-BR"),
+    "9.90", commission.toFixed(2),
+  ]);
+  const totalRevenue = weekOrders.length * 9.90;
+  const totalCommission = weekOrders.length * commission;
+  rows.push(["TOTAL", "", "", "", "", totalRevenue.toFixed(2), totalCommission.toFixed(2)]);
+  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `relatorio-semanal-${link.code}-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [funnel, setFunnel] = useState<FunnelItem[]>([]);
