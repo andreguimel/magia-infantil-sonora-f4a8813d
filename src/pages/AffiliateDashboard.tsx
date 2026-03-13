@@ -50,20 +50,34 @@ function formatDate(dateStr: string) {
   return `${d}/${m}/${y}`;
 }
 
+function getSaleType(pricePaid: number | null): string {
+  const price = pricePaid || 9.90;
+  if (price >= 24) return "Pacote";
+  if (price >= 14) return "Upsell";
+  return "Avulsa";
+}
+
+function getSaleTypeBadgeVariant(type: string): "default" | "secondary" | "outline" {
+  if (type === "Pacote") return "default";
+  if (type === "Upsell") return "secondary";
+  return "outline";
+}
+
 function exportWeekCSV(week: WeekData, label: string, commissionPercent: number) {
-  const headers = ["Nome da Criança", "Tema", "Estilo", "Data", "Valor Venda", "Comissão"];
+  const headers = ["Nome da Criança", "Tema", "Estilo", "Tipo", "Data", "Valor Venda", "Comissão"];
   const rows = week.orders.map(o => {
     const price = o.price_paid || 9.90;
     return [
       o.child_name,
       o.theme,
       o.music_style || "",
+      getSaleType(o.price_paid),
       new Date(o.created_at).toLocaleDateString("pt-BR"),
       price.toFixed(2),
       (price * commissionPercent / 100).toFixed(2),
     ];
   });
-  const totalRow = ["TOTAL", "", "", "", week.revenue.toFixed(2), week.commission.toFixed(2)];
+  const totalRow = ["TOTAL", "", "", "", "", week.revenue.toFixed(2), week.commission.toFixed(2)];
   const csv = [headers, ...rows, totalRow].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -245,17 +259,23 @@ export default function AffiliateDashboard() {
                             <TableHead>Criança</TableHead>
                             <TableHead>Tema</TableHead>
                             <TableHead>Estilo</TableHead>
+                            <TableHead>Tipo</TableHead>
                             <TableHead>Data</TableHead>
                             <TableHead>Valor</TableHead>
                             <TableHead>Comissão</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {week.orders.map((o) => (
+                          {week.orders.map((o) => {
+                            const saleType = getSaleType(o.price_paid);
+                            return (
                             <TableRow key={o.id}>
                               <TableCell className="font-medium">{o.child_name}</TableCell>
                               <TableCell>{o.theme}</TableCell>
                               <TableCell className="text-muted-foreground text-xs">{o.music_style || "—"}</TableCell>
+                              <TableCell>
+                                <Badge variant={getSaleTypeBadgeVariant(saleType)}>{saleType}</Badge>
+                              </TableCell>
                               <TableCell className="text-muted-foreground text-xs">
                                 {new Date(o.created_at).toLocaleDateString("pt-BR")}
                               </TableCell>
@@ -264,7 +284,9 @@ export default function AffiliateDashboard() {
                                 R$ {((o.price_paid || 9.90) * data.commissionPercent / 100).toFixed(2)}
                               </TableCell>
                             </TableRow>
-                          ))}
+                            );
+                          })}
+
                         </TableBody>
                       </Table>
                     </CardContent>
