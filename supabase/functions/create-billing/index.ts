@@ -144,6 +144,7 @@ serve(async (req) => {
         billing_id: pixId || null,
         payment_url: brCode || null,
         payment_status: "pending",
+        price_paid: priceInCents / 100,
       })
       .eq("id", taskId);
 
