@@ -284,7 +284,9 @@ export default function AffiliateDashboard() {
                                 R$ {((o.price_paid || 9.90) * data.commissionPercent / 100).toFixed(2)}
                               </TableCell>
                             </TableRow>
-                          ))}
+                            );
+                          })}
+
                         </TableBody>
                       </Table>
                     </CardContent>
