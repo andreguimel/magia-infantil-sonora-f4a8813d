@@ -668,6 +668,9 @@ export default function AdminDashboard() {
                             }} title={link.password_hash ? "Redefinir senha" : "Definir senha"}>
                               <Key className={`h-4 w-4 ${link.password_hash ? "text-green-600" : "text-orange-500"}`} />
                             </Button>
+                            <Button variant="ghost" size="sm" onClick={() => exportAffiliateWeeklyCSV(orders, link)} title="Relatório semanal">
+                              <FileDown className="h-4 w-4 text-primary" />
+                            </Button>
                             <Button variant="ghost" size="sm" onClick={() => handlePayCommission(link)} title="Registrar pagamento">
                               <DollarSign className="h-4 w-4 text-green-600" />
                             </Button>
