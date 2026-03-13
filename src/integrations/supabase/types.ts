@@ -30,6 +30,7 @@ export type Database = {
           music_style: string | null
           payment_status: string | null
           payment_url: string | null
+          price_paid: number | null
           ref_code: string | null
           status: string
           task_id: string | null
@@ -52,6 +53,7 @@ export type Database = {
           music_style?: string | null
           payment_status?: string | null
           payment_url?: string | null
+          price_paid?: number | null
           ref_code?: string | null
           status?: string
           task_id?: string | null
@@ -74,6 +76,7 @@ export type Database = {
           music_style?: string | null
           payment_status?: string | null
           payment_url?: string | null
+          price_paid?: number | null
           ref_code?: string | null
           status?: string
           task_id?: string | null

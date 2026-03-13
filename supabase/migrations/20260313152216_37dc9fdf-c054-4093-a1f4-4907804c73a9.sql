@@ -1,0 +1,1 @@
+ALTER TABLE public.music_tasks ADD COLUMN price_paid numeric DEFAULT NULL;
