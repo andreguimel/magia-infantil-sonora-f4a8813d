@@ -189,9 +189,9 @@ async function processPayment(
 <body><div class="container"><div class="card">
   <div class="badge">✅ Venda Confirmada!</div>
   <h2>💰 Pagamento recebido!</h2>
-  <div class="row"><span class="label">👶 Criança</span><span class="value">${task.child_name}</span></div>
-  <div class="row"><span class="label">🎨 Tema</span><span class="value">${task.theme}</span></div>
-  <div class="row"><span class="label">📧 E-mail cliente</span><span class="value">${task.user_email || "(não informado)"}</span></div>
+  <div class="row"><span class="label">👶 Criança</span><span class="value">${sanitizeHtml(task.child_name)}</span></div>
+  <div class="row"><span class="label">🎨 Tema</span><span class="value">${sanitizeHtml(task.theme)}</span></div>
+  <div class="row"><span class="label">📧 E-mail cliente</span><span class="value">${sanitizeHtml(task.user_email || "(não informado)")}</span></div>
   <div class="row"><span class="label">🪪 ID do pedido</span><span class="value">${task.id.substring(0, 8)}...</span></div>
   <div class="row"><span class="label">📦 Tipo</span><span class="value">${isUpsell ? "Upsell" : "Pedido principal"}</span></div>
   <div class="price">🎉 Venda confirmada!</div>
