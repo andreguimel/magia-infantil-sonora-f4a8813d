@@ -76,6 +76,7 @@ serve(async (req) => {
     const mpBody = {
       transaction_amount: transactionAmount,
       payment_method_id: "pix",
+      statement_descriptor: "MUSICA MAGICA",
       payer: {
         email: customerEmail,
         first_name: task.child_name,
