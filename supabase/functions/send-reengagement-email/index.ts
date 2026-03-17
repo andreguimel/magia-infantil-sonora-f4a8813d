@@ -77,9 +77,9 @@ serve(async (req) => {
   <div class="container">
     <div class="card">
       <div style="font-size: 48px; margin-bottom: 16px;">🎶✨</div>
-      <h1>${childName} adorou a música! Que tal criar mais uma?</h1>
+      <h1>${sanitizeHtml(childName)} adorou a música! Que tal criar mais uma?</h1>
       <p class="subtitle">
-        Ficamos felizes que ${childName} curtiu a música mágica! 🎉<br><br>
+        Ficamos felizes que ${sanitizeHtml(childName)} curtiu a música mágica! 🎉<br><br>
         Agora você pode criar uma <strong>nova música personalizada</strong> — com outro tema, outro estilo — e surpreender ainda mais!<br><br>
         Como você já faz parte da família Música Mágica, preparamos um <strong>desconto exclusivo de 50%</strong> para sua próxima criação! 🎁
       </p>
