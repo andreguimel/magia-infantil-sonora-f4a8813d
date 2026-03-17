@@ -227,10 +227,10 @@ async function processPayment(
 <body><div class="container"><div class="card">
   <div class="badge">⚠️ Abandono de Carrinho</div>
   <h2>Cliente não pagou o Pix</h2>
-  <div class="row"><span class="label">👶 Criança</span><span class="value">${task.child_name}</span></div>
-  <div class="row"><span class="label">🎨 Tema</span><span class="value">${task.theme}</span></div>
-  <div class="row"><span class="label">📧 E-mail</span><span class="value">${task.user_email || "(não informado)"}</span></div>
-  <div class="row"><span class="label">📌 Status</span><span class="value">${status}</span></div>
+  <div class="row"><span class="label">👶 Criança</span><span class="value">${sanitizeHtml(task.child_name)}</span></div>
+  <div class="row"><span class="label">🎨 Tema</span><span class="value">${sanitizeHtml(task.theme)}</span></div>
+  <div class="row"><span class="label">📧 E-mail</span><span class="value">${sanitizeHtml(task.user_email || "(não informado)")}</span></div>
+  <div class="row"><span class="label">📌 Status</span><span class="value">${sanitizeHtml(status)}</span></div>
   <div class="note">📨 Um e-mail de recuperação com 50% de desconto foi enviado automaticamente para o cliente (se tiver e-mail cadastrado).</div>
 </div></div></body></html>`;
 
