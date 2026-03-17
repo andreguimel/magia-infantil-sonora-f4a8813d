@@ -86,6 +86,18 @@ serve(async (req) => {
       },
       description: productName,
       external_reference: upsellTask.id,
+      additional_info: {
+        items: [
+          {
+            id: upsellTask.id,
+            title: productName,
+            description: "Upgrade para pacote com 2 músicas infantis adicionais personalizadas",
+            category_id: "entertainment",
+            quantity: 1,
+            unit_price: transactionAmount,
+          },
+        ],
+      },
     };
 
     console.log("Creating upsell MercadoPago Pix payment:", JSON.stringify(mpBody));

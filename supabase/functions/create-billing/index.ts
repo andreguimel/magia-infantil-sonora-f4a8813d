@@ -105,6 +105,20 @@ serve(async (req) => {
       },
       description: productName,
       external_reference: taskId,
+      additional_info: {
+        items: [
+          {
+            id: taskId,
+            title: productName,
+            description: plan === "pacote"
+              ? "3 músicas infantis personalizadas com o nome da criança"
+              : `Música infantil personalizada para ${task.child_name}`,
+            category_id: "entertainment",
+            quantity: plan === "pacote" ? 3 : 1,
+            unit_price: transactionAmount,
+          },
+        ],
+      },
     };
 
     console.log("Creating MercadoPago Pix payment:", JSON.stringify(mpBody));
