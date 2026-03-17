@@ -68,6 +68,11 @@ export async function saveCustomLyrics(params: GenerateLyricsParams & { customLy
   return { taskId: data.taskId };
 }
 
+// Get MercadoPago device fingerprint (set by security.js)
+function getDeviceId(): string | undefined {
+  return (window as any).MP_DEVICE_SESSION_ID || undefined;
+}
+
 export async function createBilling(
   taskId: string,
   plan: string,
@@ -75,6 +80,7 @@ export async function createBilling(
   discountPercent?: number
 ): Promise<{ billingId: string; brCode: string; brCodeBase64: string }> {
   const refCode = localStorage.getItem("ref_code") || undefined;
+  const deviceId = getDeviceId();
   const response = await fetch(`${SUPABASE_URL}/functions/v1/create-billing`, {
     method: "POST",
     headers,
@@ -87,6 +93,7 @@ export async function createBilling(
       customerCpf: customerData?.cpf,
       discountPercent,
       refCode,
+      deviceId,
     }),
   });
 
@@ -99,10 +106,11 @@ export async function createBilling(
 }
 
 export async function createUpsellBilling(taskId: string): Promise<{ billingId: string; brCode: string; brCodeBase64: string; upsellTaskId: string }> {
+  const deviceId = getDeviceId();
   const response = await fetch(`${SUPABASE_URL}/functions/v1/create-upsell-billing`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ taskId, origin: window.location.origin }),
+    body: JSON.stringify({ taskId, origin: window.location.origin, deviceId }),
   });
 
   if (!response.ok) {
