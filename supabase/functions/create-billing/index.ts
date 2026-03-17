@@ -106,7 +106,9 @@ serve(async (req) => {
       },
       description: productName,
       external_reference: taskId,
+      ...(deviceId ? { metadata: { session_id: deviceId } } : {}),
       additional_info: {
+        ...(deviceId ? { ip_address: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "" } : {}),
         items: [
           {
             id: taskId,

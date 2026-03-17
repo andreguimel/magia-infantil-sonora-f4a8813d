@@ -106,10 +106,11 @@ export async function createBilling(
 }
 
 export async function createUpsellBilling(taskId: string): Promise<{ billingId: string; brCode: string; brCodeBase64: string; upsellTaskId: string }> {
+  const deviceId = getDeviceId();
   const response = await fetch(`${SUPABASE_URL}/functions/v1/create-upsell-billing`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ taskId, origin: window.location.origin }),
+    body: JSON.stringify({ taskId, origin: window.location.origin, deviceId }),
   });
 
   if (!response.ok) {
