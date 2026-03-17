@@ -6,6 +6,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function sanitizeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -50,7 +54,7 @@ serve(async (req) => {
   <div class="container">
     <div class="card">
       <div style="font-size: 48px; margin-bottom: 16px;">🎵</div>
-      <h1>A música de ${childName} está pronta!</h1>
+      <h1>A música de ${sanitizeHtml(childName)} está pronta!</h1>
       <p class="subtitle">Sua música mágica personalizada foi gerada com sucesso.</p>
       
       ${accessCode ? `

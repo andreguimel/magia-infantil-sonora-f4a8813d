@@ -7,6 +7,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function sanitizeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 async function sendBrevoEmail(apiKey: string, to: string, subject: string, htmlContent: string) {
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -36,7 +40,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    console.log("MercadoPago webhook received:", JSON.stringify(body));
+    console.log("MercadoPago webhook received, action:", body.action || body.type, "payment_id:", body.data?.id);
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -185,9 +189,9 @@ async function processPayment(
 <body><div class="container"><div class="card">
   <div class="badge">✅ Venda Confirmada!</div>
   <h2>💰 Pagamento recebido!</h2>
-  <div class="row"><span class="label">👶 Criança</span><span class="value">${task.child_name}</span></div>
-  <div class="row"><span class="label">🎨 Tema</span><span class="value">${task.theme}</span></div>
-  <div class="row"><span class="label">📧 E-mail cliente</span><span class="value">${task.user_email || "(não informado)"}</span></div>
+  <div class="row"><span class="label">👶 Criança</span><span class="value">${sanitizeHtml(task.child_name)}</span></div>
+  <div class="row"><span class="label">🎨 Tema</span><span class="value">${sanitizeHtml(task.theme)}</span></div>
+  <div class="row"><span class="label">📧 E-mail cliente</span><span class="value">${sanitizeHtml(task.user_email || "(não informado)")}</span></div>
   <div class="row"><span class="label">🪪 ID do pedido</span><span class="value">${task.id.substring(0, 8)}...</span></div>
   <div class="row"><span class="label">📦 Tipo</span><span class="value">${isUpsell ? "Upsell" : "Pedido principal"}</span></div>
   <div class="price">🎉 Venda confirmada!</div>
@@ -223,10 +227,10 @@ async function processPayment(
 <body><div class="container"><div class="card">
   <div class="badge">⚠️ Abandono de Carrinho</div>
   <h2>Cliente não pagou o Pix</h2>
-  <div class="row"><span class="label">👶 Criança</span><span class="value">${task.child_name}</span></div>
-  <div class="row"><span class="label">🎨 Tema</span><span class="value">${task.theme}</span></div>
-  <div class="row"><span class="label">📧 E-mail</span><span class="value">${task.user_email || "(não informado)"}</span></div>
-  <div class="row"><span class="label">📌 Status</span><span class="value">${status}</span></div>
+  <div class="row"><span class="label">👶 Criança</span><span class="value">${sanitizeHtml(task.child_name)}</span></div>
+  <div class="row"><span class="label">🎨 Tema</span><span class="value">${sanitizeHtml(task.theme)}</span></div>
+  <div class="row"><span class="label">📧 E-mail</span><span class="value">${sanitizeHtml(task.user_email || "(não informado)")}</span></div>
+  <div class="row"><span class="label">📌 Status</span><span class="value">${sanitizeHtml(status)}</span></div>
   <div class="note">📨 Um e-mail de recuperação com 50% de desconto foi enviado automaticamente para o cliente (se tiver e-mail cadastrado).</div>
 </div></div></body></html>`;
 
@@ -262,9 +266,9 @@ async function processPayment(
   <div class="container">
     <div class="card">
       <div style="font-size: 52px; margin-bottom: 16px;">🎵</div>
-      <h1>Oi! Esqueceu a música de ${task.child_name}? 🎶</h1>
+      <h1>Oi! Esqueceu a música de ${sanitizeHtml(task.child_name)}? 🎶</h1>
       <p class="subtitle">
-        Você quase criou a música personalizada de <strong>${task.child_name}</strong>.<br>
+        Você quase criou a música personalizada de <strong>${sanitizeHtml(task.child_name)}</strong>.<br>
         Por isso, estamos oferecendo um desconto especial só para você!
       </p>
       <div class="coupon-box">

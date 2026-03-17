@@ -5,6 +5,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function sanitizeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 async function verifyToken(token: string, secret: string): Promise<boolean> {
   try {
     const [payloadB64, sigB64] = token.split('.');
@@ -73,9 +77,9 @@ serve(async (req) => {
   <div class="container">
     <div class="card">
       <div style="font-size: 48px; margin-bottom: 16px;">🎵</div>
-      <h1>A música de ${childName} está esperando por você!</h1>
+      <h1>A música de ${sanitizeHtml(childName)} está esperando por você!</h1>
       <p class="subtitle">
-        Notamos que você começou a criar uma música mágica personalizada para ${childName}, mas não finalizou a compra.<br><br>
+        Notamos que você começou a criar uma música mágica personalizada para ${sanitizeHtml(childName)}, mas não finalizou a compra.<br><br>
         Temos uma surpresa especial: use o cupom abaixo e ganhe <strong>50% de desconto</strong>! 🎉
       </p>
       
