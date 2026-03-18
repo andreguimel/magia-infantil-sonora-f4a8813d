@@ -468,13 +468,13 @@ export default function AdminDashboard() {
                     <SelectItem value="30d">Últimos 30 dias</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+                <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                  <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos status</SelectItem>
-                    <SelectItem value="paid">Pagos</SelectItem>
-                    <SelectItem value="pending">Pendentes</SelectItem>
-                    <SelectItem value="abandoned">Abandonados</SelectItem>
+                    <SelectItem value="30">30 por pág.</SelectItem>
+                    <SelectItem value="60">60 por pág.</SelectItem>
+                    <SelectItem value="90">90 por pág.</SelectItem>
+                    <SelectItem value="0">Mostrar tudo</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button variant="outline" size="sm" onClick={() => exportCSV(filteredOrders)} disabled={filteredOrders.length === 0}>
