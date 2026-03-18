@@ -12,6 +12,7 @@ interface GenerateLyricsParams {
   ageGroup: string;
   theme: string;
   userEmail?: string;
+  userPhone?: string;
   musicStyle?: string;
 }
 
@@ -55,6 +56,7 @@ export async function saveCustomLyrics(params: GenerateLyricsParams & { customLy
       theme: params.theme,
       lyrics: params.customLyrics,
       userEmail: params.userEmail,
+      userPhone: params.userPhone,
       musicStyle: params.musicStyle,
     }),
   });

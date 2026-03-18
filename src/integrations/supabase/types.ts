@@ -36,6 +36,7 @@ export type Database = {
           task_id: string | null
           theme: string
           user_email: string | null
+          user_phone: string | null
           video_images: Json | null
         }
         Insert: {
@@ -59,6 +60,7 @@ export type Database = {
           task_id?: string | null
           theme: string
           user_email?: string | null
+          user_phone?: string | null
           video_images?: Json | null
         }
         Update: {
@@ -82,6 +84,7 @@ export type Database = {
           task_id?: string | null
           theme?: string
           user_email?: string | null
+          user_phone?: string | null
           video_images?: Json | null
         }
         Relationships: []

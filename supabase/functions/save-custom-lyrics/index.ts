@@ -23,7 +23,7 @@ serve(async (req) => {
   }
 
   try {
-    const { childName, ageGroup, theme, lyrics, userEmail, musicStyle } = await req.json();
+    const { childName, ageGroup, theme, lyrics, userEmail, userPhone, musicStyle } = await req.json();
 
     if (!childName || !ageGroup || !theme || !lyrics || lyrics.trim().length < 20) {
       return new Response(
@@ -47,6 +47,7 @@ serve(async (req) => {
         status: "awaiting_payment",
         lyrics: lyrics.trim(),
         user_email: userEmail || null,
+        user_phone: userPhone || null,
         music_style: musicStyle || null,
       })
       .select("id")

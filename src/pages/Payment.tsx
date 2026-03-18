@@ -192,12 +192,19 @@ export default function Payment() {
     if (stored && storedTaskId) {
       setMusicData(JSON.parse(stored) as MusicData);
       setTaskId(storedTaskId);
-      // Pre-fill email if available
+      // Pre-fill email from musicData or musicResult
       const data = JSON.parse(stored) as any;
       if (data.userEmail) setParentEmail(data.userEmail);
     } else {
       navigate("/criar");
     }
+    // Also try to pre-fill from musicResult (CreateMusic stores email there)
+    try {
+      const musicResult = JSON.parse(localStorage.getItem("musicResult") || "{}");
+      if (musicResult?.formData?.userEmail && !parentEmail) {
+        setParentEmail(musicResult.formData.userEmail);
+      }
+    } catch {}
   }, [navigate]);
 
   // Admin bypass via URL parameter ?admin=SECRET
