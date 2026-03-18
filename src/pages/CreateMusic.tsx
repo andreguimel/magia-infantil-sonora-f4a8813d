@@ -103,6 +103,10 @@ export default function CreateMusic() {
       toast({ title: "Opa! 🎵", description: "Digite o nome da criança para continuar", variant: "destructive" });
       return;
     }
+    if (!formData.userEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.userEmail)) {
+      toast({ title: "Opa! 🎵", description: "Digite um email válido", variant: "destructive" });
+      return;
+    }
     if (!formData.ageGroup) {
       toast({ title: "Opa! 🎵", description: "Selecione a faixa etária", variant: "destructive" });
       return;
