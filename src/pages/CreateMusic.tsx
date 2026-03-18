@@ -72,6 +72,7 @@ interface FormData {
   gender: string;
   theme: string;
   userEmail?: string;
+  userPhone?: string;
   customLyrics?: string;
   musicStyle?: string;
 }
