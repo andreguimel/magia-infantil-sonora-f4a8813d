@@ -10,7 +10,7 @@ import {
   ArrowLeft,
   Music,
   Mail,
-  Phone,
+  
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -260,26 +260,6 @@ export default function CreateMusic() {
                   </p>
                 </div>
 
-                {/* WhatsApp */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold mb-2">
-                    <Phone className="w-4 h-4 text-secondary" />
-                    WhatsApp (opcional)
-                  </label>
-                  <Input
-                    type="tel"
-                    placeholder="(11) 99999-9999"
-                    value={formData.userPhone || ""}
-                    onChange={(e) => {
-                      const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
-                      let masked = digits;
-                      if (digits.length > 2) masked = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-                      if (digits.length > 7) masked = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-                      setFormData({ ...formData, userPhone: masked });
-                    }}
-                    className="h-12 rounded-xl border-2 border-border focus:border-primary transition-colors"
-                  />
-                </div>
 
                 {/* Idade */}
                 <div>
