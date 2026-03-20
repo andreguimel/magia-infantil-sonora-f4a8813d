@@ -123,6 +123,10 @@
 }
 
 @layer base {
+  #lovable-badge {
+    display: none !important;
+  }
+
   * {
     @apply border-border;
   }
