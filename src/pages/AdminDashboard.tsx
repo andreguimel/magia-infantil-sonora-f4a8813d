@@ -12,6 +12,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { RefreshCw, LogOut, ShoppingCart, CheckCircle, XCircle, TrendingUp, DollarSign, Search, FileDown, Play, Trash2, Link, Plus, Copy, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import OrderDetailModal from "@/components/admin/OrderDetailModal";
+import EmailMarketing from "@/components/admin/EmailMarketing";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
