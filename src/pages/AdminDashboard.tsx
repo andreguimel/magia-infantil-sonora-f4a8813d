@@ -755,6 +755,9 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="email-marketing">
+          <EmailMarketing orders={orders} />
+        </TabsContent>
       </Tabs>
 
       <OrderDetailModal order={selectedOrder} open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)} onRetrySuccess={() => { setSelectedOrder(null); fetchData(); }} />
