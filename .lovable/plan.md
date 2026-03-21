@@ -1,35 +1,58 @@
 
 
-# Botao de Reengajamento para Clientes com Musica Completa
+## Plano: Ferramenta de Email Marketing no Painel Admin
 
-## Objetivo
-Adicionar um botao no modal de detalhes do pedido (admin) para enviar email de reengajamento a clientes que ja receberam sua musica, oferecendo 50% de desconto para criar uma nova.
+### O que será criado
+Uma nova aba "Email Marketing" no painel admin onde o administrador pode:
+- Ver todos os contatos (emails) dos pedidos
+- Filtrar contatos por status de pagamento (todos, pagos, pendentes, abandonados)
+- Selecionar contatos individualmente ou todos de uma vez
+- Escolher entre modelos de mensagem pré-definidos (Recuperação com cupom 50%, Reengajamento, Promoção personalizada)
+- Editar o assunto e corpo do email antes de enviar
+- Enviar para os contatos selecionados via Brevo
 
-## Mudancas
+### Alterações
 
-### 1. Nova Edge Function: `send-reengagement-email`
-Criar `supabase/functions/send-reengagement-email/index.ts` baseada na estrutura existente do `send-recovery-email`:
-- Verificacao de token admin (mesmo padrao HMAC)
-- Recebe `email` e `childName` no body
-- Envia email via Brevo com template diferente: tom positivo de quem ja comprou, mencionando o nome da crianca, convidando a criar outra musica com cupom **VOLTEI50** (50% de desconto)
-- Link direciona para `/criar?coupon=VOLTEI50`
-- Assunto: "Crie mais uma musica magica para [nome]! 50% OFF"
+**1. Edge Function — `send-bulk-email/index.ts` (nova)**
+- Recebe lista de emails, assunto e conteúdo HTML
+- Valida token admin (mesmo padrão das outras funções)
+- Envia via Brevo API para cada destinatário
+- Sanitiza conteúdo para segurança
 
-### 2. Atualizar OrderDetailModal
-Em `src/components/admin/OrderDetailModal.tsx`:
-- Adicionar novo botao "Enviar Email de Reengajamento" visivel apenas quando `payment_status === "paid"` e `status === "completed"` e `user_email` existe
-- Estilo diferenciado (cor roxa/accent) para distinguir do botao de recuperacao existente
-- Handler chama a nova Edge Function com o token admin
+**2. Frontend — `src/components/admin/EmailMarketing.tsx` (novo componente)**
+- Extrai contatos únicos (com email) dos pedidos já carregados
+- Filtros: status de pagamento, busca por nome/email
+- Checkboxes para seleção individual + "selecionar todos"
+- 3 modelos de mensagem pré-prontos:
+  - **Recuperação**: cupom RESGATE50 para abandonos
+  - **Reengajamento**: cupom VOLTEI50 para clientes que já compraram
+  - **Personalizado**: assunto e corpo editáveis
+- Textarea para editar o corpo antes de enviar
+- Botão "Enviar para X selecionados" com confirmação
+- Contador de emails enviados/erros
 
-### 3. Suporte ao cupom VOLTEI50 na pagina de pagamento
-Verificar se a pagina de pagamento (`Payment.tsx`) ja suporta cupons via URL genericamente. Se sim, apenas garantir que VOLTEI50 aplique 50%. Se nao, adicionar suporte.
+**3. Frontend — `src/pages/AdminDashboard.tsx`**
+- Adicionar nova aba "Email Marketing" no TabsList
+- Importar e renderizar o componente EmailMarketing passando os pedidos como prop
 
-## Detalhes Tecnicos
+### Modelos de mensagem
+```text
+1. Recuperação (Carrinho Abandonado)
+   Assunto: 🎵 {nome} ainda está esperando! 50% OFF
+   Corpo: Template com cupom RESGATE50
 
-**Arquivos modificados:**
-- `supabase/functions/send-reengagement-email/index.ts` (novo)
-- `src/components/admin/OrderDetailModal.tsx` (novo botao)
-- `src/pages/Payment.tsx` (suporte ao cupom VOLTEI50 se necessario)
+2. Reengajamento (Cliente Existente)
+   Assunto: 🎶 Crie outra música para {nome}! 50% OFF
+   Corpo: Template com cupom VOLTEI50
 
-**Cupom:** VOLTEI50 com 50% de desconto, aplicado via parametro `?coupon=VOLTEI50` na URL
+3. Personalizado
+   Assunto: [editável]
+   Corpo: [editável]
+```
+
+### Detalhes técnicos
+- Os contatos são derivados dos pedidos já carregados (sem nova query)
+- Emails duplicados são agrupados (mostra o pedido mais recente)
+- Envio sequencial com delay de 200ms entre emails para respeitar rate limits do Brevo
+- O componente EmailMarketing recebe `orders: Order[]` como prop
 
