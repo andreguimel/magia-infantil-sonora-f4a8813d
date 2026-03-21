@@ -411,6 +411,9 @@ export default function AdminDashboard() {
           <TabsTrigger value="tracking">
             <Link className="h-4 w-4 mr-1" /> Links de Rastreamento
           </TabsTrigger>
+          <TabsTrigger value="email-marketing">
+            <Mail className="h-4 w-4 mr-1" /> Email Marketing
+          </TabsTrigger>
         </TabsList>
 
         {/* Funnel Tab */}
