@@ -138,7 +138,7 @@ export function Pricing() {
                 {plan.popular ? (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    Criar música agora — R$ 9,90
+                    Criar música agora — R$ 19,90
                   </>
                 ) : (
                   <>
