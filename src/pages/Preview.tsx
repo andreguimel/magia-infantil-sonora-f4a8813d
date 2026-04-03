@@ -65,8 +65,8 @@ interface PackageSong {
 type PaymentState = "preview" | "form" | "qrcode" | "confirmed" | "generating" | "completed";
 
 const planInfo = {
-  single: { label: "Música Mágica", price: "9,90", priceNum: "9.90", description: "1 música personalizada" },
-  pacote: { label: "Pacote Encantado", price: "24,90", priceNum: "24.90", description: "3 músicas personalizadas" },
+  single: { label: "Música Mágica", price: "19,90", priceNum: "19.90", originalPrice: "39,90", description: "1 música personalizada" },
+  pacote: { label: "Pacote Encantado", price: "39,90", priceNum: "39.90", originalPrice: "79,90", description: "3 músicas personalizadas" },
 };
 
 const VALID_COUPON = "MAGICA10";
