@@ -1062,8 +1062,8 @@ export default function Preview() {
                     <h3 className="font-baloo font-bold text-xl mb-2">Que tal mais 2 músicas?</h3>
                     <p className="text-muted-foreground text-sm mb-4">Crie músicas para irmãos, primos ou amigos!</p>
                     <p className="text-2xl font-baloo font-bold text-gradient mb-4">
-                      +2 músicas por apenas R$ 15,00
-                      <span className="block text-sm text-muted-foreground line-through">De R$ 19,80</span>
+                      +2 músicas por apenas R$ 25,00
+                      <span className="block text-sm text-muted-foreground line-through">De R$ 39,80</span>
                     </p>
 
                     <AnimatePresence mode="wait">
