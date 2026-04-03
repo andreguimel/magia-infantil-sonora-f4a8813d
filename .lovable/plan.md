@@ -1,58 +1,66 @@
 
 
-## Plano: Ferramenta de Email Marketing no Painel Admin
+## Plano: Unificar Preview + Pagamento na mesma tela
 
-### O que será criado
-Uma nova aba "Email Marketing" no painel admin onde o administrador pode:
-- Ver todos os contatos (emails) dos pedidos
-- Filtrar contatos por status de pagamento (todos, pagos, pendentes, abandonados)
-- Selecionar contatos individualmente ou todos de uma vez
-- Escolher entre modelos de mensagem pré-definidos (Recuperação com cupom 50%, Reengajamento, Promoção personalizada)
-- Editar o assunto e corpo do email antes de enviar
-- Enviar para os contatos selecionados via Brevo
+### Problema atual
+O fluxo tem 3 etapas com navegação entre páginas: `/criar` → `/preview` → `/pagamento`. A transição preview→pagamento é um ponto de abandono.
+
+### Solução
+Mesclar a página `/preview` com o formulário de pagamento, eliminando a navegação para `/pagamento`. O usuário verá a letra à esquerda e o formulário de pagamento completo à direita, tudo numa única tela.
+
+### Layout da nova página `/preview`
+
+```text
+┌─────────────────────────────────────────────────┐
+│  ← Voltar    Prévia da sua música! 🎵           │
+├────────────────────┬────────────────────────────┤
+│                    │  🎶✨ Imagine essa letra    │
+│   LETRA DA MÚSICA  │  ganhando vida!            │
+│   (editável)       │                            │
+│                    │  ✅ MP3 completo            │
+│                    │  ✅ PDF com letra           │
+│                    │  ✅ Download instantâneo    │
+│                    │                            │
+│                    │  Escolha o plano:           │
+│                    │  [Música Mágica R$9,90]     │
+│                    │  [Pacote Encantado R$24,90] │
+│                    │                            │
+│                    │  Nome completo *            │
+│                    │  Email *  (pré-preenchido)  │
+│                    │  CPF *                      │
+│                    │  ☐ Aceito os termos         │
+│                    │                            │
+│                    │  [💳 PAGAR VIA PIX]         │
+│                    │                            │
+│                    │  ── ou após pagar ──        │
+│                    │  [QR Code Pix]              │
+│                    │  [Gerando música...]        │
+│                    │  [🎵 Download pronto!]      │
+└────────────────────┴────────────────────────────┘
+```
 
 ### Alterações
 
-**1. Edge Function — `send-bulk-email/index.ts` (nova)**
-- Recebe lista de emails, assunto e conteúdo HTML
-- Valida token admin (mesmo padrão das outras funções)
-- Envia via Brevo API para cada destinatário
-- Sanitiza conteúdo para segurança
+**1. `src/pages/Preview.tsx` — Refatoração completa**
+- Mover toda a lógica de pagamento de `Payment.tsx` para dentro de `Preview.tsx`
+- O lado esquerdo mantém a letra editável (como está hoje)
+- O lado direito terá: frase chamativa → benefícios → seleção de plano → formulário de dados (nome, email pré-preenchido, CPF, termos) → botão de pagamento
+- Após pagamento: exibir QR code Pix, polling de status, tela de geração e tela de conclusão com downloads — tudo inline no lado direito
+- Suportar cupons de desconto (URL param e localStorage), admin bypass, e lógica de pacote
 
-**2. Frontend — `src/components/admin/EmailMarketing.tsx` (novo componente)**
-- Extrai contatos únicos (com email) dos pedidos já carregados
-- Filtros: status de pagamento, busca por nome/email
-- Checkboxes para seleção individual + "selecionar todos"
-- 3 modelos de mensagem pré-prontos:
-  - **Recuperação**: cupom RESGATE50 para abandonos
-  - **Reengajamento**: cupom VOLTEI50 para clientes que já compraram
-  - **Personalizado**: assunto e corpo editáveis
-- Textarea para editar o corpo antes de enviar
-- Botão "Enviar para X selecionados" com confirmação
-- Contador de emails enviados/erros
+**2. `src/pages/Payment.tsx` — Redirect**
+- Transformar em redirect simples para `/preview` (para URLs compartilhadas ou bookmarks antigos)
+- Manter compatibilidade com `?coupon=`, `?admin=`, `?paid=true` passando os params
 
-**3. Frontend — `src/pages/AdminDashboard.tsx`**
-- Adicionar nova aba "Email Marketing" no TabsList
-- Importar e renderizar o componente EmailMarketing passando os pedidos como prop
+**3. `src/App.tsx`**
+- Manter a rota `/pagamento` apontando para o Payment.tsx (que agora é só redirect)
 
-### Modelos de mensagem
-```text
-1. Recuperação (Carrinho Abandonado)
-   Assunto: 🎵 {nome} ainda está esperando! 50% OFF
-   Corpo: Template com cupom RESGATE50
+**4. Nenhuma alteração no backend**
+- Edge functions permanecem iguais
+- `musicPipeline.ts` permanece igual
 
-2. Reengajamento (Cliente Existente)
-   Assunto: 🎶 Crie outra música para {nome}! 50% OFF
-   Corpo: Template com cupom VOLTEI50
-
-3. Personalizado
-   Assunto: [editável]
-   Corpo: [editável]
-```
-
-### Detalhes técnicos
-- Os contatos são derivados dos pedidos já carregados (sem nova query)
-- Emails duplicados são agrupados (mostra o pedido mais recente)
-- Envio sequencial com delay de 200ms entre emails para respeitar rate limits do Brevo
-- O componente EmailMarketing recebe `orders: Order[]` como prop
+### Benefícios
+- Elimina 1 clique/navegação do funil (menos abandono)
+- Email já pré-preenchido da página `/criar`
+- Experiência mais fluida: ver letra → pagar → receber música sem sair da página
 
