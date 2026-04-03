@@ -752,8 +752,8 @@ export default function Preview() {
                               <p className="text-xs text-muted-foreground">3 músicas personalizadas</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xl font-baloo font-extrabold text-gradient">R$ 24,90</p>
-                              <p className="text-[10px] text-muted-foreground line-through">R$ 29,70</p>
+                              <p className="text-xl font-baloo font-extrabold text-gradient">R$ 39,90</p>
+                              <p className="text-[10px] text-muted-foreground line-through">R$ 79,90</p>
                             </div>
                           </div>
                         </button>
