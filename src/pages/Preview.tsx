@@ -1119,7 +1119,7 @@ export default function Preview() {
                         <motion.div key="upsell-qr" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-2">
                           <div className="inline-flex items-center gap-2 bg-mint/20 text-mint-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
                             <QrCode className="w-4 h-4" />
-                            Pague via Pix — R$ 15,00
+                            Pague via Pix — R$ 25,00
                           </div>
                           <div className="bg-white rounded-2xl p-6 inline-block mb-4 shadow-soft">
                             <QRCode value={upsellBrCode} size={240} level="M" />

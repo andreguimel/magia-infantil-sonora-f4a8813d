@@ -63,7 +63,7 @@ export function Hero() {
             </div>
 
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
-              A IA Música Mágica escreve uma letra linda e educativa com o nome da sua criança, adiciona ritmo, uma banda completa e te entrega uma música pronta por apenas R$9,90.
+              A IA Música Mágica escreve uma letra linda e educativa com o nome da sua criança, adiciona ritmo, uma banda completa e te entrega uma música pronta por apenas <span className="line-through text-muted-foreground/60">R$39,90</span> <span className="font-bold text-primary">R$19,90</span>.
               <span className="text-primary font-semibold"> É algo marcante e inesquecível! Aproveite essa oferta por tempo limitado!</span>
             </p>
 

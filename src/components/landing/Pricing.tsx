@@ -143,7 +143,7 @@ export function Pricing() {
                 ) : (
                   <>
                     <Gift className="w-5 h-5" />
-                    Quero 3 músicas — R$ 24,90
+                    Quero 3 músicas — R$ 39,90
                   </>
                 )}
               </MagicButton>

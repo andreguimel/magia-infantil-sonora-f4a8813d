@@ -46,7 +46,7 @@ export function StickyMobileCTA() {
           <div className="bg-card/95 backdrop-blur-lg border-t border-border px-4 py-3 flex items-center justify-between gap-3 shadow-lg">
             <div>
               <p className="text-xs text-muted-foreground">A partir de</p>
-              <p className="text-lg font-baloo font-extrabold text-primary">R$ 9,90</p>
+              <p className="text-lg font-baloo font-extrabold text-primary">R$ 19,90</p>
             </div>
             <button
               onClick={() => navigate("/criar")}
