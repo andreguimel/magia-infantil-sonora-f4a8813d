@@ -34,7 +34,7 @@ function IntermediateCTA() {
           </p>
           <button onClick={() => navigate("/criar")} className="btn-magic text-lg flex items-center justify-center gap-2 mx-auto">
             <Sparkles className="w-5 h-5" />
-            Criar música personalizada — R$ 9,90
+            Criar música personalizada — R$ 19,90
           </button>
           <p className="text-xs text-muted-foreground mt-3">
             ✅ Pagamento seguro via Pix • Download instantâneo

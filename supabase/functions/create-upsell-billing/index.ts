@@ -59,7 +59,7 @@ serve(async (req) => {
         status: "awaiting_payment",
         payment_status: "pending",
         lyrics: "__UPSELL__",
-        price_paid: 15.00,
+        price_paid: 25.00,
       })
       .select("id")
       .single();
@@ -69,7 +69,7 @@ serve(async (req) => {
     }
 
     const customerEmail = task.user_email || `customer-${taskId.substring(0, 8)}@musicamagica.com`;
-    const transactionAmount = 15.00;
+    const transactionAmount = 25.00;
     const productName = "Upgrade Pacote Encantado - +2 músicas";
 
     // Create Mercado Pago Pix payment

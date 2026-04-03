@@ -71,7 +71,7 @@ serve(async (req) => {
     }
 
     // Determine price, applying discount if provided
-    let priceInCents = plan === "pacote" ? 2490 : 990;
+    let priceInCents = plan === "pacote" ? 3990 : 1990;
     if (discountPercent && typeof discountPercent === "number" && discountPercent > 0 && discountPercent <= 50) {
       priceInCents = Math.round(priceInCents * (1 - discountPercent / 100));
     }

@@ -65,8 +65,8 @@ interface PackageSong {
 type PaymentState = "preview" | "form" | "qrcode" | "confirmed" | "generating" | "completed";
 
 const planInfo = {
-  single: { label: "Música Mágica", price: "9,90", priceNum: "9.90", description: "1 música personalizada" },
-  pacote: { label: "Pacote Encantado", price: "24,90", priceNum: "24.90", description: "3 músicas personalizadas" },
+  single: { label: "Música Mágica", price: "19,90", priceNum: "19.90", originalPrice: "39,90", description: "1 música personalizada" },
+  pacote: { label: "Pacote Encantado", price: "39,90", priceNum: "39.90", originalPrice: "79,90", description: "3 músicas personalizadas" },
 };
 
 const VALID_COUPON = "MAGICA10";
@@ -730,7 +730,10 @@ export default function Preview() {
                               <p className="font-bold">🎵 Música Mágica</p>
                               <p className="text-xs text-muted-foreground">1 música personalizada</p>
                             </div>
-                            <p className="text-xl font-baloo font-extrabold text-gradient">R$ 9,90</p>
+                            <div className="text-right">
+                              <p className="text-xl font-baloo font-extrabold text-gradient">R$ 19,90</p>
+                              <p className="text-[10px] text-muted-foreground line-through">R$ 39,90</p>
+                            </div>
                           </div>
                         </button>
 
@@ -749,8 +752,8 @@ export default function Preview() {
                               <p className="text-xs text-muted-foreground">3 músicas personalizadas</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xl font-baloo font-extrabold text-gradient">R$ 24,90</p>
-                              <p className="text-[10px] text-muted-foreground line-through">R$ 29,70</p>
+                              <p className="text-xl font-baloo font-extrabold text-gradient">R$ 39,90</p>
+                              <p className="text-[10px] text-muted-foreground line-through">R$ 79,90</p>
                             </div>
                           </div>
                         </button>
@@ -1059,8 +1062,8 @@ export default function Preview() {
                     <h3 className="font-baloo font-bold text-xl mb-2">Que tal mais 2 músicas?</h3>
                     <p className="text-muted-foreground text-sm mb-4">Crie músicas para irmãos, primos ou amigos!</p>
                     <p className="text-2xl font-baloo font-bold text-gradient mb-4">
-                      +2 músicas por apenas R$ 15,00
-                      <span className="block text-sm text-muted-foreground line-through">De R$ 19,80</span>
+                      +2 músicas por apenas R$ 25,00
+                      <span className="block text-sm text-muted-foreground line-through">De R$ 39,80</span>
                     </p>
 
                     <AnimatePresence mode="wait">
@@ -1116,7 +1119,7 @@ export default function Preview() {
                         <motion.div key="upsell-qr" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-2">
                           <div className="inline-flex items-center gap-2 bg-mint/20 text-mint-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
                             <QrCode className="w-4 h-4" />
-                            Pague via Pix — R$ 15,00
+                            Pague via Pix — R$ 25,00
                           </div>
                           <div className="bg-white rounded-2xl p-6 inline-block mb-4 shadow-soft">
                             <QRCode value={upsellBrCode} size={240} level="M" />
