@@ -1,66 +1,44 @@
 
 
-## Plano: Unificar Preview + Pagamento na mesma tela
+## Plano: Aumentar preços para R$ 19,90 / R$ 39,90 com preço riscado
 
-### Problema atual
-O fluxo tem 3 etapas com navegação entre páginas: `/criar` → `/preview` → `/pagamento`. A transição preview→pagamento é um ponto de abandono.
+### Resumo
+Atualizar todos os preços de R$ 9,90 → R$ 19,90 (avulsa) e R$ 24,90 → R$ 39,90 (pacote), com preços "De" riscados para ancoragem de valor. Upsell ajustado proporcionalmente.
 
-### Solução
-Mesclar a página `/preview` com o formulário de pagamento, eliminando a navegação para `/pagamento`. O usuário verá a letra à esquerda e o formulário de pagamento completo à direita, tudo numa única tela.
+### Novos preços
+| Plano | De (riscado) | Por (atual) |
+|-------|-------------|-------------|
+| Avulsa | R$ 39,90 | R$ 19,90 |
+| Pacote | R$ 79,90 | R$ 39,90 |
+| Upsell | — | R$ 25,00 |
 
-### Layout da nova página `/preview`
+### Arquivos a alterar
 
-```text
-┌─────────────────────────────────────────────────┐
-│  ← Voltar    Prévia da sua música! 🎵           │
-├────────────────────┬────────────────────────────┤
-│                    │  🎶✨ Imagine essa letra    │
-│   LETRA DA MÚSICA  │  ganhando vida!            │
-│   (editável)       │                            │
-│                    │  ✅ MP3 completo            │
-│                    │  ✅ PDF com letra           │
-│                    │  ✅ Download instantâneo    │
-│                    │                            │
-│                    │  Escolha o plano:           │
-│                    │  [Música Mágica R$9,90]     │
-│                    │  [Pacote Encantado R$24,90] │
-│                    │                            │
-│                    │  Nome completo *            │
-│                    │  Email *  (pré-preenchido)  │
-│                    │  CPF *                      │
-│                    │  ☐ Aceito os termos         │
-│                    │                            │
-│                    │  [💳 PAGAR VIA PIX]         │
-│                    │                            │
-│                    │  ── ou após pagar ──        │
-│                    │  [QR Code Pix]              │
-│                    │  [Gerando música...]        │
-│                    │  [🎵 Download pronto!]      │
-└────────────────────┴────────────────────────────┘
-```
+**1. `src/components/landing/Pricing.tsx`**
+- Avulsa: price "19,90", adicionar `originalPrice: "39,90"`
+- Pacote: price "39,90", originalPrice "79,90"
+- Atualizar textos dos botões CTA
 
-### Alterações
+**2. `src/pages/Preview.tsx`**
+- `planInfo.single`: price "19,90", priceNum "19.90"
+- `planInfo.pacote`: price "39,90", priceNum "39.90"
+- Atualizar preços exibidos nos botões de seleção de plano
 
-**1. `src/pages/Preview.tsx` — Refatoração completa**
-- Mover toda a lógica de pagamento de `Payment.tsx` para dentro de `Preview.tsx`
-- O lado esquerdo mantém a letra editável (como está hoje)
-- O lado direito terá: frase chamativa → benefícios → seleção de plano → formulário de dados (nome, email pré-preenchido, CPF, termos) → botão de pagamento
-- Após pagamento: exibir QR code Pix, polling de status, tela de geração e tela de conclusão com downloads — tudo inline no lado direito
-- Suportar cupons de desconto (URL param e localStorage), admin bypass, e lógica de pacote
+**3. `src/components/landing/Hero.tsx`**
+- Atualizar texto "por apenas R$19,90" + adicionar "de R$39,90"
 
-**2. `src/pages/Payment.tsx` — Redirect**
-- Transformar em redirect simples para `/preview` (para URLs compartilhadas ou bookmarks antigos)
-- Manter compatibilidade com `?coupon=`, `?admin=`, `?paid=true` passando os params
+**4. `src/pages/Index.tsx`**
+- CTA intermediário: "R$ 19,90"
 
-**3. `src/App.tsx`**
-- Manter a rota `/pagamento` apontando para o Payment.tsx (que agora é só redirect)
+**5. `src/components/ui/StickyMobileCTA.tsx`**
+- "A partir de R$ 19,90"
 
-**4. Nenhuma alteração no backend**
-- Edge functions permanecem iguais
-- `musicPipeline.ts` permanece igual
+**6. Backend — `supabase/functions/create-billing/index.ts`**
+- `priceInCents`: pacote 3990, avulsa 1990
 
-### Benefícios
-- Elimina 1 clique/navegação do funil (menos abandono)
-- Email já pré-preenchido da página `/criar`
-- Experiência mais fluida: ver letra → pagar → receber música sem sair da página
+**7. Backend — `supabase/functions/create-upsell-billing/index.ts`**
+- `price_paid` e `transactionAmount`: 25.00
+
+**8. `index.html`**
+- Atualizar JSON-LD structured data de 29.90 para 39.90
 
