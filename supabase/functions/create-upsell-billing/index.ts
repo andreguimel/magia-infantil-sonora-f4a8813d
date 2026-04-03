@@ -59,7 +59,7 @@ serve(async (req) => {
         status: "awaiting_payment",
         payment_status: "pending",
         lyrics: "__UPSELL__",
-        price_paid: 15.00,
+        price_paid: 25.00,
       })
       .select("id")
       .single();
