@@ -44,7 +44,7 @@ serve(async (req) => {
   }
 
   try {
-    const { taskId, plan, origin, customerName, customerEmail: reqEmail, customerCpf, discountPercent, refCode, deviceId } = await req.json();
+    const { taskId, plan, origin, customerName, customerEmail: reqEmail, customerCpf, customerPhone, discountPercent, refCode, deviceId } = await req.json();
 
     const MERCADOPAGO_ACCESS_TOKEN = Deno.env.get("MERCADOPAGO_ACCESS_TOKEN");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -85,6 +85,7 @@ serve(async (req) => {
     // Update task with customer email and ref_code if provided
     const updateFields: Record<string, string> = {};
     if (reqEmail && reqEmail !== task.user_email) updateFields.user_email = reqEmail;
+    if (customerPhone) updateFields.user_phone = customerPhone;
     if (refCode) updateFields.ref_code = refCode;
     if (Object.keys(updateFields).length > 0) {
       await supabase.from("music_tasks").update(updateFields).eq("id", taskId);
