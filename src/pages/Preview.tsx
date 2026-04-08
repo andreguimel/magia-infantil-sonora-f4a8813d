@@ -712,10 +712,8 @@ export default function Preview() {
                       {isEditing ? "✏️ Edite a letra como quiser antes de comprar" : "🎵 Esta é a letra que será cantada na sua música personalizada"}
                     </p>
                   </div>
-                </motion.div>
 
-                {/* Right: CTA + Plan selection */}
-                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-6">
+                  {/* Urgency timer */}
                   {/* Urgency timer */}
                   {!isPackageFollowUp && (
                     <div className="card-float text-center bg-accent/20 border border-accent/30">
