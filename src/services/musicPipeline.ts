@@ -78,7 +78,7 @@ function getDeviceId(): string | undefined {
 export async function createBilling(
   taskId: string,
   plan: string,
-  customerData?: { name: string; email: string; cpf: string },
+  customerData?: { name: string; email: string; cpf: string; phone?: string },
   discountPercent?: number
 ): Promise<{ billingId: string; brCode: string; brCodeBase64: string }> {
   const refCode = localStorage.getItem("ref_code") || undefined;
@@ -93,6 +93,7 @@ export async function createBilling(
       customerName: customerData?.name,
       customerEmail: customerData?.email,
       customerCpf: customerData?.cpf,
+      customerPhone: customerData?.phone,
       discountPercent,
       refCode,
       deviceId,
