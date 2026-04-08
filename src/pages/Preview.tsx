@@ -19,7 +19,6 @@ import {
   User,
   Mail,
   CreditCard,
-  Phone,
 } from "lucide-react";
 import { MagicButton } from "@/components/ui/MagicButton";
 import { FloatingElements } from "@/components/ui/FloatingElements";
@@ -161,7 +160,7 @@ export default function Preview() {
   // Form fields
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
-  const [parentPhone, setParentPhone] = useState("");
+  
   const [parentCpf, setParentCpf] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -503,7 +502,7 @@ export default function Preview() {
       const billingResult = await createBilling(
         result.taskId,
         selectedPlan,
-        { name: parentName.trim(), email: parentEmail.trim(), cpf: cpfDigits, phone: parentPhone.replace(/\D/g, "") },
+        { name: parentName.trim(), email: parentEmail.trim(), cpf: cpfDigits },
         discountPercent > 0 ? discountPercent : undefined
       );
       if (appliedDiscount) localStorage.removeItem("exitCoupon");
@@ -889,18 +888,6 @@ export default function Preview() {
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" maxLength={255} />
                   </div>
 
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input type="tel" inputMode="numeric" placeholder="Telefone (XX) XXXXX-XXXX" value={parentPhone}
-                      onChange={(e) => {
-                        let v = e.target.value.replace(/\D/g, "").slice(0, 11);
-                        if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
-                        else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
-                        else if (v.length > 0) v = `(${v}`;
-                        setParentPhone(v);
-                      }}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
-                  </div>
 
                   <div className="relative">
                     <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
