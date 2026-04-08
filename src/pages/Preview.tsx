@@ -860,7 +860,6 @@ export default function Preview() {
                       ✅ Pagamento seguro via Pix • Download instantâneo
                     </p>
                   </div>
-                </motion.div>
               </div>
             </motion.div>
           )}
