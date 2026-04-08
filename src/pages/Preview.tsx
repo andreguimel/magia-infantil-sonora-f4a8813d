@@ -594,6 +594,29 @@ export default function Preview() {
       <FloatingElements />
 
       <div className="container-rounded py-8 relative z-10">
+        {/* Progress Stepper */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <div className="flex items-center justify-center gap-1 md:gap-2">
+            {stepperSteps.map((step, i) => {
+              const isCompleted = i < stepperIndex;
+              const isCurrent = i === stepperIndex;
+              return (
+                <div key={i} className="flex items-center gap-1 md:gap-2">
+                  <div className={`flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${
+                    isCompleted ? "bg-primary/20 text-primary" : isCurrent ? "bg-primary text-primary-foreground shadow-magic" : "bg-muted text-muted-foreground"
+                  }`}>
+                    {isCompleted ? <Check className="w-3 h-3 md:w-4 md:h-4" /> : <span>{step.icon}</span>}
+                    <span className="hidden sm:inline">{step.label}</span>
+                  </div>
+                  {i < stepperSteps.length - 1 && (
+                    <div className={`w-4 md:w-8 h-0.5 ${isCompleted ? "bg-primary" : "bg-muted"}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Package progress */}
         {isPacote && paymentState !== "preview" && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
