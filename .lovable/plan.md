@@ -1,44 +1,41 @@
 
 
-## Plano: Aumentar preços para R$ 19,90 / R$ 39,90 com preço riscado
+## Plano: Stepper + Social Proof + Timer de Urgência
 
-### Resumo
-Atualizar todos os preços de R$ 9,90 → R$ 19,90 (avulsa) e R$ 24,90 → R$ 39,90 (pacote), com preços "De" riscados para ancoragem de valor. Upsell ajustado proporcionalmente.
+### 1. Stepper de progresso no topo da página `/preview`
+Adicionar uma barra visual de 4 passos abaixo do header, visível em todos os estados:
 
-### Novos preços
-| Plano | De (riscado) | Por (atual) |
-|-------|-------------|-------------|
-| Avulsa | R$ 39,90 | R$ 19,90 |
-| Pacote | R$ 79,90 | R$ 39,90 |
-| Upsell | — | R$ 25,00 |
+```text
+[✓ Personalizar] ─── [● Ver Letra] ─── [○ Pagar] ─── [○ Música Pronta]
+```
 
-### Arquivos a alterar
+- Cada `PaymentState` mapeia para um step ativo
+- Cores: step completo = primary, atual = primary com pulso, futuro = muted
+- Componente inline no `Preview.tsx`, sem arquivo separado
 
-**1. `src/components/landing/Pricing.tsx`**
-- Avulsa: price "19,90", adicionar `originalPrice: "39,90"`
-- Pacote: price "39,90", originalPrice "79,90"
-- Atualizar textos dos botões CTA
+**Arquivo**: `src/pages/Preview.tsx`
 
-**2. `src/pages/Preview.tsx`**
-- `planInfo.single`: price "19,90", priceNum "19.90"
-- `planInfo.pacote`: price "39,90", priceNum "39.90"
-- Atualizar preços exibidos nos botões de seleção de plano
+### 2. Social proof no card de CTA (estado "preview")
+Adicionar logo acima do botão "Quero a música!" no card da direita:
 
-**3. `src/components/landing/Hero.tsx`**
-- Atualizar texto "por apenas R$19,90" + adicionar "de R$39,90"
+- Linha com: `⭐ 4.9/5 • 2.847 músicas criadas`
+- Mini depoimento de 1 linha: _"Meu filho amou! Ouve toda hora"_ — Ana, SP
+- Badge: `🔒 Pagamento 100% seguro`
 
-**4. `src/pages/Index.tsx`**
-- CTA intermediário: "R$ 19,90"
+Também adicionar no estado "form" (acima do botão de gerar QR Code).
 
-**5. `src/components/ui/StickyMobileCTA.tsx`**
-- "A partir de R$ 19,90"
+**Arquivo**: `src/pages/Preview.tsx`
 
-**6. Backend — `supabase/functions/create-billing/index.ts`**
-- `priceInCents`: pacote 3990, avulsa 1990
+### 3. Timer de urgência no estado "preview"
+Mover o countdown (que hoje só aparece no estado "form") para também aparecer no card de CTA do estado "preview", acima da seleção de plano.
 
-**7. Backend — `supabase/functions/create-upsell-billing/index.ts`**
-- `price_paid` e `transactionAmount`: 25.00
+Texto: "⏳ Oferta por tempo limitado" com timer regressivo visual.
 
-**8. `index.html`**
-- Atualizar JSON-LD structured data de 29.90 para 39.90
+**Arquivo**: `src/pages/Preview.tsx`
+
+### Resumo de alterações
+Apenas 1 arquivo será modificado: `src/pages/Preview.tsx`
+- Stepper visual (mapeamento PaymentState → step index)
+- Social proof (texto estático + mini depoimento)
+- Timer reutilizado do estado "form" para "preview"
 
