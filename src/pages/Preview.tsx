@@ -168,6 +168,18 @@ export default function Preview() {
   const isPacote = selectedPlan === "pacote" || storedPlan === "pacote";
   const plan = planInfo[selectedPlan];
 
+  // Stepper mapping
+  const stepperSteps = [
+    { label: "Personalizar", icon: "✏️" },
+    { label: "Ver Letra", icon: "📝" },
+    { label: "Pagar", icon: "💳" },
+    { label: "Música Pronta", icon: "🎵" },
+  ];
+  const stepperIndex = paymentState === "completed" ? 3
+    : paymentState === "generating" || paymentState === "confirmed" ? 3
+    : paymentState === "qrcode" || paymentState === "form" ? 2
+    : 1; // preview
+
   // Coupon
   const urlCoupon = searchParams.get("coupon")?.toUpperCase() || null;
   const appliedCoupon = urlCoupon || getExitCoupon();
@@ -582,6 +594,29 @@ export default function Preview() {
       <FloatingElements />
 
       <div className="container-rounded py-8 relative z-10">
+        {/* Progress Stepper */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <div className="flex items-center justify-center gap-1 md:gap-2">
+            {stepperSteps.map((step, i) => {
+              const isCompleted = i < stepperIndex;
+              const isCurrent = i === stepperIndex;
+              return (
+                <div key={i} className="flex items-center gap-1 md:gap-2">
+                  <div className={`flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${
+                    isCompleted ? "bg-primary/20 text-primary" : isCurrent ? "bg-primary text-primary-foreground shadow-magic" : "bg-muted text-muted-foreground"
+                  }`}>
+                    {isCompleted ? <Check className="w-3 h-3 md:w-4 md:h-4" /> : <span>{step.icon}</span>}
+                    <span className="hidden sm:inline">{step.label}</span>
+                  </div>
+                  {i < stepperSteps.length - 1 && (
+                    <div className={`w-4 md:w-8 h-0.5 ${isCompleted ? "bg-primary" : "bg-muted"}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Package progress */}
         {isPacote && paymentState !== "preview" && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
@@ -683,6 +718,16 @@ export default function Preview() {
 
                 {/* Right: CTA + Plan selection */}
                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-6">
+                  {/* Urgency timer */}
+                  {!isPackageFollowUp && (
+                    <div className="card-float text-center bg-accent/20 border border-accent/30">
+                      <div className="flex items-center justify-center gap-2 text-accent-foreground">
+                        <Clock className="w-5 h-5" />
+                        <span className="font-bold">⏳ Oferta por tempo limitado: {formatTimeLeft(timeLeft)}</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Motivational card */}
                   <div className="card-float bg-gradient-to-br from-primary/15 via-lavender/10 to-secondary/15 border-2 border-primary/20 text-center">
                     <div className="text-4xl mb-3">🎶✨</div>
@@ -763,6 +808,19 @@ export default function Preview() {
 
                   {/* CTA */}
                   <div className="card-float bg-gradient-to-br from-primary/10 via-lavender/10 to-secondary/10 border-2 border-primary/30">
+                    {/* Social proof */}
+                    <div className="flex flex-col items-center gap-2 mb-4 pb-4 border-b border-border">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <span className="text-amber-400">⭐⭐⭐⭐⭐</span>
+                        <span>4.9/5</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">2.847 músicas criadas</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground italic">
+                        "Meu filho amou! Ouve toda hora" — <span className="font-medium not-italic">Ana, SP</span>
+                      </p>
+                    </div>
+
                     <div className="text-center mb-4">
                       {isPackageFollowUp ? (
                         <>
@@ -876,6 +934,19 @@ export default function Preview() {
                 </div>
 
                 {/* Submit */}
+                {/* Social proof */}
+                <div className="flex flex-col items-center gap-1.5 mb-4 pb-4 border-b border-border">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <span className="text-amber-400">⭐⭐⭐⭐⭐</span>
+                    <span>4.9/5</span>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">2.847 músicas criadas</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">
+                    "A melhor surpresa que já dei pro meu filho!" — <span className="font-medium not-italic">Carlos, RJ</span>
+                  </p>
+                </div>
+
                 <MagicButton size="lg" className="w-full" loading={isCreatingBilling} onClick={handleSubmitPayment}>
                   <QrCode className="w-5 h-5" />
                   Gerar QR Code Pix
@@ -883,7 +954,7 @@ export default function Preview() {
 
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  Compra 100% segura · Dados protegidos com criptografia
+                  🔒 Compra 100% segura · Dados protegidos com criptografia
                 </div>
               </div>
             </motion.div>
