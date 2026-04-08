@@ -678,7 +678,7 @@ export default function Preview() {
           {/* PREVIEW STATE: Split layout — lyrics left, CTA right */}
           {paymentState === "preview" && (
             <motion.div key="preview-split" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}>
-              <div className="max-w-2xl mx-auto space-y-6">
+              <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                   <div className="card-float">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-baloo font-bold text-xl flex items-center gap-2">
