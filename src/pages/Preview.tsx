@@ -718,6 +718,16 @@ export default function Preview() {
 
                 {/* Right: CTA + Plan selection */}
                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-6">
+                  {/* Urgency timer */}
+                  {!isPackageFollowUp && (
+                    <div className="card-float text-center bg-accent/20 border border-accent/30">
+                      <div className="flex items-center justify-center gap-2 text-accent-foreground">
+                        <Clock className="w-5 h-5" />
+                        <span className="font-bold">⏳ Oferta por tempo limitado: {formatTimeLeft(timeLeft)}</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Motivational card */}
                   <div className="card-float bg-gradient-to-br from-primary/15 via-lavender/10 to-secondary/15 border-2 border-primary/20 text-center">
                     <div className="text-4xl mb-3">🎶✨</div>
