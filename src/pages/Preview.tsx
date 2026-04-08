@@ -808,6 +808,19 @@ export default function Preview() {
 
                   {/* CTA */}
                   <div className="card-float bg-gradient-to-br from-primary/10 via-lavender/10 to-secondary/10 border-2 border-primary/30">
+                    {/* Social proof */}
+                    <div className="flex flex-col items-center gap-2 mb-4 pb-4 border-b border-border">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <span className="text-amber-400">⭐⭐⭐⭐⭐</span>
+                        <span>4.9/5</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">2.847 músicas criadas</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground italic">
+                        "Meu filho amou! Ouve toda hora" — <span className="font-medium not-italic">Ana, SP</span>
+                      </p>
+                    </div>
+
                     <div className="text-center mb-4">
                       {isPackageFollowUp ? (
                         <>
