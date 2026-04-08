@@ -168,6 +168,18 @@ export default function Preview() {
   const isPacote = selectedPlan === "pacote" || storedPlan === "pacote";
   const plan = planInfo[selectedPlan];
 
+  // Stepper mapping
+  const stepperSteps = [
+    { label: "Personalizar", icon: "✏️" },
+    { label: "Ver Letra", icon: "📝" },
+    { label: "Pagar", icon: "💳" },
+    { label: "Música Pronta", icon: "🎵" },
+  ];
+  const stepperIndex = paymentState === "completed" ? 3
+    : paymentState === "generating" || paymentState === "confirmed" ? 3
+    : paymentState === "qrcode" || paymentState === "form" ? 2
+    : 1; // preview
+
   // Coupon
   const urlCoupon = searchParams.get("coupon")?.toUpperCase() || null;
   const appliedCoupon = urlCoupon || getExitCoupon();
