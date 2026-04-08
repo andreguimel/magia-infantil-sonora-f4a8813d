@@ -934,6 +934,19 @@ export default function Preview() {
                 </div>
 
                 {/* Submit */}
+                {/* Social proof */}
+                <div className="flex flex-col items-center gap-1.5 mb-4 pb-4 border-b border-border">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <span className="text-amber-400">⭐⭐⭐⭐⭐</span>
+                    <span>4.9/5</span>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">2.847 músicas criadas</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">
+                    "A melhor surpresa que já dei pro meu filho!" — <span className="font-medium not-italic">Carlos, RJ</span>
+                  </p>
+                </div>
+
                 <MagicButton size="lg" className="w-full" loading={isCreatingBilling} onClick={handleSubmitPayment}>
                   <QrCode className="w-5 h-5" />
                   Gerar QR Code Pix
@@ -941,7 +954,7 @@ export default function Preview() {
 
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  Compra 100% segura · Dados protegidos com criptografia
+                  🔒 Compra 100% segura · Dados protegidos com criptografia
                 </div>
               </div>
             </motion.div>
