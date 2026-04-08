@@ -19,7 +19,6 @@ import {
   User,
   Mail,
   CreditCard,
-  Phone,
 } from "lucide-react";
 import { MagicButton } from "@/components/ui/MagicButton";
 import { FloatingElements } from "@/components/ui/FloatingElements";
