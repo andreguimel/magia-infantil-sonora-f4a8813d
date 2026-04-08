@@ -714,7 +714,6 @@ export default function Preview() {
                   </div>
 
                   {/* Urgency timer */}
-                  {/* Urgency timer */}
                   {!isPackageFollowUp && (
                     <div className="card-float text-center bg-accent/20 border border-accent/30">
                       <div className="flex items-center justify-center gap-2 text-accent-foreground">
