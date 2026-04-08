@@ -1,41 +1,28 @@
 
 
-## Plano: Stepper + Social Proof + Timer de Urgência
+## Plano: Layout de coluna única no Preview
 
-### 1. Stepper de progresso no topo da página `/preview`
-Adicionar uma barra visual de 4 passos abaixo do header, visível em todos os estados:
+### O que muda
+Transformar o layout de 2 colunas (`grid lg:grid-cols-2`) no estado "preview" para **1 coluna**, colocando todo o conteúdo de pagamento (timer, benefícios, planos, CTA) logo abaixo da letra.
 
-```text
-[✓ Personalizar] ─── [● Ver Letra] ─── [○ Pagar] ─── [○ Música Pronta]
-```
+### Alterações em `src/pages/Preview.tsx`
 
-- Cada `PaymentState` mapeia para um step ativo
-- Cores: step completo = primary, atual = primary com pulso, futuro = muted
-- Componente inline no `Preview.tsx`, sem arquivo separado
+**1. Remover grid de 2 colunas (linha ~681)**
+- Trocar `<div className="grid lg:grid-cols-2 gap-8">` por `<div className="max-w-2xl mx-auto space-y-6">`
 
-**Arquivo**: `src/pages/Preview.tsx`
+**2. Reordenar o conteúdo em sequência vertical**
+A ordem ficará:
+1. Letra da música (card editável)
+2. Card motivacional ("imagine essa letra ganhando vida...")
+3. Timer de urgência
+4. Benefícios ("Ao comprar você recebe")
+5. Seleção de plano
+6. CTA com social proof + botão de compra
 
-### 2. Social proof no card de CTA (estado "preview")
-Adicionar logo acima do botão "Quero a música!" no card da direita:
+**3. Remover wrappers de coluna**
+- Eliminar os `<motion.div>` que separavam left/right columns
+- Manter as animações mas sem `delay: 0.4` na segunda metade (tudo aparece junto)
 
-- Linha com: `⭐ 4.9/5 • 2.847 músicas criadas`
-- Mini depoimento de 1 linha: _"Meu filho amou! Ouve toda hora"_ — Ana, SP
-- Badge: `🔒 Pagamento 100% seguro`
-
-Também adicionar no estado "form" (acima do botão de gerar QR Code).
-
-**Arquivo**: `src/pages/Preview.tsx`
-
-### 3. Timer de urgência no estado "preview"
-Mover o countdown (que hoje só aparece no estado "form") para também aparecer no card de CTA do estado "preview", acima da seleção de plano.
-
-Texto: "⏳ Oferta por tempo limitado" com timer regressivo visual.
-
-**Arquivo**: `src/pages/Preview.tsx`
-
-### Resumo de alterações
-Apenas 1 arquivo será modificado: `src/pages/Preview.tsx`
-- Stepper visual (mapeamento PaymentState → step index)
-- Social proof (texto estático + mini depoimento)
-- Timer reutilizado do estado "form" para "preview"
+### Resultado
+Experiência de scroll natural: o usuário lê a letra → rola para baixo → vê o CTA e paga. Funciona melhor em mobile e desktop, sem conteúdo "escondido" ao lado.
 
