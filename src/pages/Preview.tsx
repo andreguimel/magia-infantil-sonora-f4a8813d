@@ -678,7 +678,9 @@ export default function Preview() {
           {/* PREVIEW STATE: Split layout — lyrics left, CTA right */}
           {paymentState === "preview" && (
             <motion.div key="preview-split" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}>
-              <div className="max-w-2xl mx-auto space-y-6">
+              <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                  {/* Left column: Lyrics */}
+                  <div>
                   <div className="card-float">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-baloo font-bold text-xl flex items-center gap-2">
@@ -712,124 +714,128 @@ export default function Preview() {
                       {isEditing ? "✏️ Edite a letra como quiser antes de comprar" : "🎵 Esta é a letra que será cantada na sua música personalizada"}
                     </p>
                   </div>
+                  </div>
 
-                  {/* Compact motivational line */}
-                  <p className="text-center font-baloo font-bold text-base">
-                    🎶 Transforme essa letra em música para <span className="text-gradient">{formData.childName}</span>! 🎵
-                  </p>
-
-                  {/* Unified checkout card */}
-                  <div className="card-float bg-gradient-to-br from-primary/10 via-lavender/5 to-secondary/10 border-2 border-primary/30">
-                    {/* Timer */}
-                    {!isPackageFollowUp && (
-                      <div className="flex items-center justify-center gap-2 text-sm text-accent-foreground mb-3">
-                        <Clock className="w-4 h-4" />
-                        <span className="font-bold">⏳ Oferta expira em: {formatTimeLeft(timeLeft)}</span>
-                      </div>
-                    )}
-
-                    {/* Benefits inline */}
-                    <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground mb-4 pb-3 border-b border-border">
-                      <span className="flex items-center gap-1"><Music className="w-3.5 h-3.5 text-primary" /> MP3</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5 text-primary" /> PDF</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><Download className="w-3.5 h-3.5 text-primary" /> Download</span>
-                    </div>
-
-                    {/* Plan selection */}
-                    {!isPackageFollowUp && (
-                      <div className="space-y-2 mb-4">
-                        <button
-                          onClick={() => setSelectedPlan("single")}
-                          className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
-                            selectedPlan === "single" ? "border-primary bg-primary/10" : "border-border hover:border-primary/40"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-bold text-sm">🎵 Música Mágica</p>
-                              <p className="text-[11px] text-muted-foreground">1 música personalizada</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-baloo font-extrabold text-gradient">R$ 19,90</p>
-                              <p className="text-[10px] text-muted-foreground line-through">R$ 39,90</p>
-                            </div>
-                          </div>
-                        </button>
-
-                        <button
-                          onClick={() => setSelectedPlan("pacote")}
-                          className={`w-full text-left p-3 rounded-xl border-2 transition-all relative overflow-hidden ${
-                            selectedPlan === "pacote" ? "border-secondary bg-secondary/10" : "border-border hover:border-secondary/40"
-                          }`}
-                        >
-                          <span className="absolute top-0 right-0 bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
-                            MAIS POPULAR
-                          </span>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-bold text-sm">🎁 Pacote Encantado</p>
-                              <p className="text-[11px] text-muted-foreground">3 músicas personalizadas</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-baloo font-extrabold text-gradient">R$ 39,90</p>
-                              <p className="text-[10px] text-muted-foreground line-through">R$ 79,90</p>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Social proof compact */}
-                    <div className="flex items-center justify-center gap-2 text-xs mb-3">
-                      <span className="text-amber-400">⭐</span>
-                      <span className="font-medium">4.9/5</span>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">2.847 músicas criadas</span>
-                    </div>
-
-                    {/* Price + CTA */}
-                    <div className="text-center mb-3">
-                      {isPackageFollowUp ? (
-                        <>
-                          <p className="text-sm font-medium text-primary">🎁 Já incluso no seu pacote!</p>
-                          <p className="text-xs text-muted-foreground">
-                            {packageSongsRemainingLS} {packageSongsRemainingLS === 1 ? "música restante" : "músicas restantes"}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          {appliedDiscount && (
-                            <p className="text-sm text-muted-foreground line-through">R$ {plan.price}</p>
-                          )}
-                          <p className="text-3xl font-baloo font-extrabold text-gradient">
-                            R$ {displayPrice || plan.price}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {selectedPlan === "pacote" ? "3 músicas • Pix" : "Pagamento único via Pix"}
-                          </p>
-                          {appliedDiscount && (
-                            <p className="text-xs font-semibold text-accent-foreground bg-accent/30 rounded-full px-2 py-0.5 mt-1 inline-block">
-                              🎉 {discountPercent}% OFF
-                            </p>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    <MagicButton size="lg" className="w-full" onClick={handleBuy}>
-                      <ShoppingCart className="w-5 h-5" />
-                      {isPackageFollowUp
-                        ? "Gerar esta música!"
-                        : selectedPlan === "pacote"
-                        ? "Quero o pacote completo!"
-                        : "Quero a música completa!"}
-                    </MagicButton>
-
-                    <p className="text-center text-[10px] text-muted-foreground mt-2">
-                      ✅ Pagamento seguro via Pix • Download instantâneo
+                  {/* Right column: Checkout */}
+                  <div className="lg:sticky lg:top-8 space-y-4">
+                    {/* Compact motivational line */}
+                    <p className="text-center font-baloo font-bold text-base">
+                      🎶 Transforme essa letra em música para <span className="text-gradient">{formData.childName}</span>! 🎵
                     </p>
+
+                    {/* Unified checkout card */}
+                    <div className="card-float bg-gradient-to-br from-primary/10 via-lavender/5 to-secondary/10 border-2 border-primary/30">
+                      {/* Timer */}
+                      {!isPackageFollowUp && (
+                        <div className="flex items-center justify-center gap-2 text-sm text-accent-foreground mb-3">
+                          <Clock className="w-4 h-4" />
+                          <span className="font-bold">⏳ Oferta expira em: {formatTimeLeft(timeLeft)}</span>
+                        </div>
+                      )}
+
+                      {/* Benefits inline */}
+                      <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground mb-4 pb-3 border-b border-border">
+                        <span className="flex items-center gap-1"><Music className="w-3.5 h-3.5 text-primary" /> MP3</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5 text-primary" /> PDF</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Download className="w-3.5 h-3.5 text-primary" /> Download</span>
+                      </div>
+
+                      {/* Plan selection */}
+                      {!isPackageFollowUp && (
+                        <div className="space-y-2 mb-4">
+                          <button
+                            onClick={() => setSelectedPlan("single")}
+                            className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                              selectedPlan === "single" ? "border-primary bg-primary/10" : "border-border hover:border-primary/40"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-sm">🎵 Música Mágica</p>
+                                <p className="text-[11px] text-muted-foreground">1 música personalizada</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-baloo font-extrabold text-gradient">R$ 19,90</p>
+                                <p className="text-[10px] text-muted-foreground line-through">R$ 39,90</p>
+                              </div>
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => setSelectedPlan("pacote")}
+                            className={`w-full text-left p-3 rounded-xl border-2 transition-all relative overflow-hidden ${
+                              selectedPlan === "pacote" ? "border-secondary bg-secondary/10" : "border-border hover:border-secondary/40"
+                            }`}
+                          >
+                            <span className="absolute top-0 right-0 bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                              MAIS POPULAR
+                            </span>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-sm">🎁 Pacote Encantado</p>
+                                <p className="text-[11px] text-muted-foreground">3 músicas personalizadas</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-baloo font-extrabold text-gradient">R$ 39,90</p>
+                                <p className="text-[10px] text-muted-foreground line-through">R$ 79,90</p>
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Social proof compact */}
+                      <div className="flex items-center justify-center gap-2 text-xs mb-3">
+                        <span className="text-amber-400">⭐</span>
+                        <span className="font-medium">4.9/5</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">2.847 músicas criadas</span>
+                      </div>
+
+                      {/* Price + CTA */}
+                      <div className="text-center mb-3">
+                        {isPackageFollowUp ? (
+                          <>
+                            <p className="text-sm font-medium text-primary">🎁 Já incluso no seu pacote!</p>
+                            <p className="text-xs text-muted-foreground">
+                              {packageSongsRemainingLS} {packageSongsRemainingLS === 1 ? "música restante" : "músicas restantes"}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            {appliedDiscount && (
+                              <p className="text-sm text-muted-foreground line-through">R$ {plan.price}</p>
+                            )}
+                            <p className="text-3xl font-baloo font-extrabold text-gradient">
+                              R$ {displayPrice || plan.price}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {selectedPlan === "pacote" ? "3 músicas • Pix" : "Pagamento único via Pix"}
+                            </p>
+                            {appliedDiscount && (
+                              <p className="text-xs font-semibold text-accent-foreground bg-accent/30 rounded-full px-2 py-0.5 mt-1 inline-block">
+                                🎉 {discountPercent}% OFF
+                              </p>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      <MagicButton size="lg" className="w-full" onClick={handleBuy}>
+                        <ShoppingCart className="w-5 h-5" />
+                        {isPackageFollowUp
+                          ? "Gerar esta música!"
+                          : selectedPlan === "pacote"
+                          ? "Quero o pacote completo!"
+                          : "Quero a música completa!"}
+                      </MagicButton>
+
+                      <p className="text-center text-[10px] text-muted-foreground mt-2">
+                        ✅ Pagamento seguro via Pix • Download instantâneo
+                      </p>
+                    </div>
                   </div>
               </div>
             </motion.div>
