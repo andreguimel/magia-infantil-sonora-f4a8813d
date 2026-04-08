@@ -161,6 +161,7 @@ export default function Preview() {
   // Form fields
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
+  const [parentPhone, setParentPhone] = useState("");
   const [parentCpf, setParentCpf] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
