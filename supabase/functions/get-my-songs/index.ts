@@ -72,8 +72,12 @@ serve(async (req) => {
       const now = new Date();
 
       if (expiresAt && new Date(expiresAt) < now && now < maxExpiry) {
-        // Regenerate signed URL
-        const remainingSeconds = Math.floor((maxExpiry.getTime() - now.getTime()) / 1000);
+        // Regenerate short-lived signed URL (7 days max, capped by remaining business window)
+        const SIGNED_URL_DURATION_SECONDS = 7 * 24 * 60 * 60;
+        const remainingSeconds = Math.min(
+          SIGNED_URL_DURATION_SECONDS,
+          Math.floor((maxExpiry.getTime() - now.getTime()) / 1000),
+        );
         const filePath = `${task.id}.mp3`;
 
         const { data: signedData, error: signedError } = await supabase.storage
