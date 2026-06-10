@@ -126,10 +126,12 @@ serve(async (req) => {
           throw new Error(`Upload failed: ${uploadError.message}`);
         }
 
-        // Generate signed URL (30 days = 2592000 seconds)
+        // Generate short-lived signed URL (7 days). The business window remains 30 days
+        // via on-demand regeneration in get-my-songs using the access code.
+        const SIGNED_URL_DURATION_SECONDS = 7 * 24 * 60 * 60;
         const { data: signedData, error: signedError } = await supabase.storage
           .from("music-files")
-          .createSignedUrl(filePath, 2592000);
+          .createSignedUrl(filePath, SIGNED_URL_DURATION_SECONDS);
 
         if (signedError || !signedData?.signedUrl) {
           console.error("Signed URL error:", signedError);
@@ -137,7 +139,7 @@ serve(async (req) => {
         }
 
         downloadUrl = signedData.signedUrl;
-        downloadExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        downloadExpiresAt = new Date(Date.now() + SIGNED_URL_DURATION_SECONDS * 1000).toISOString();
 
         // Generate unique access code
         let codeUnique = false;
